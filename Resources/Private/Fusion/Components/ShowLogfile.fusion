@@ -19,7 +19,10 @@ prototype(Shel.Neos.Logs:Component.ShowLogfile) < prototype(Neos.Fusion:Componen
             <div class="neos-row-fluid">
                 <h2>Log file {props.filename}</h2>
                 <br/>
-                <table>
+                <p @if.noEntries={!props.entries}>
+                    {props.content}
+                </p>
+                <table @if.hasEntries={props.entries}>
                     <thead>
                         <tr>
                             <th>Date</th>
