@@ -1,0 +1,16 @@
+privilegeTargets:
+  'Neos\Flow\Security\Authorization\Privilege\Method\MethodPrivilege':
+    'Shel.Neos.Logs:Backend.Module.Administration.Logs.ViewLogs':
+      matcher: 'method(Shel\Neos\Logs\Controller\LogsController->(?!initialize).*Action())'
+
+  'Neos\Neos\Security\Authorization\Privilege\ModulePrivilege':
+    'Shel.Neos.Logs:Backend.Module.Administration.Logs':
+      matcher: 'administration/shel-neos-logs'
+
+roles:
+  'Neos.Neos:Administrator':
+    privileges:
+      - privilegeTarget: 'Shel.Neos.Logs:Backend.Module.Administration.Logs.ViewLogs'
+        permission: GRANT
+      - privilegeTarget: 'Shel.Neos.Logs:Backend.Module.Administration.Logs'
+        permission: GRANT

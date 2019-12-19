@@ -1,0 +1,6 @@
+- requestFilter: 'isPackage("Shel.Neos.Logs") && isController("Logs")'
+  viewObjectName: 'Neos\Fusion\View\FusionView'
+  options:
+    fusionPathPatterns:
+      - 'resource://Neos.Fusion/Private/Fusion'
+      - 'resource://Shel.Neos.Logs/Private/Fusion'

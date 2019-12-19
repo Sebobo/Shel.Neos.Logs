@@ -1,0 +1,50 @@
+prototype(Shel.Neos.Logs:Component.ShowLogfile) < prototype(Neos.Fusion:Component) {
+    filename = ${filename}
+    content = ${content}
+    entries = ${entries}
+
+    levelColors = Neos.Fusion:DataStructure {
+        DEBUG = '#bbb'
+        ERROR = '#f55'
+        INFO = '#55f'
+        EMERGENCY = '#f55'
+        NOTICE = '#fff'
+        WARNING = '#f50'
+        CRITICAL = '#f55'
+        ALERT = '#f55'
+    }
+
+    renderer = afx`
+        <div class="neos-content neos-container-fluid">
+            <div class="neos-row-fluid">
+                <h2>Log file {props.filename}</h2>
+                <br/>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <Neos.Fusion:Loop items={props.entries} itemName="entry">
+                            <tr style={'color:' + props.levelColors[entry.level]}>
+                                <td style={'white-space: nowrap'}>{entry.date}</td>
+                                <td>{entry.level}</td>
+                                <td>{entry.message}</td>
+                            </tr>
+                        </Neos.Fusion:Loop>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="neos-footer">
+                <a class="neos-button">
+                    <Neos.Fusion:UriBuilder @path="attributes.href" action="index" />
+                    {I18n.id('Shel.Neos.Logs:Modules:action.back').value('Back').translate()}
+                </a>
+            </div>
+        </div>
+    `
+}

@@ -1,0 +1,17 @@
+Neos:
+  Neos:
+    modules:
+      administration:
+        submodules:
+          shel-neos-logs:
+            label: 'Logfile viewer'
+            controller: 'Shel\Neos\Logs\Controller\LogsController'
+            description: 'Shel.Neos.Logs:Main:module.description'
+            icon: fas fa-search
+            privilegeTarget: 'Shel.Neos.Logs:Backend.Module.Administration.Logs'
+
+Shel:
+  Neos:
+    Logs:
+      logFilesUrl: '%FLOW_PATH_DATA%Logs'
+      exceptionFilesUrl: '%FLOW_PATH_DATA%Logs/Exceptions'

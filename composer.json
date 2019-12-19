@@ -1,0 +1,38 @@
+{
+    "name": "shel/neos-logs",
+    "type": "neos-plugin",
+    "license": "GPL-3.0+",
+    "description": "Allows access to logfiles and exceptions from the Neos CMS backend",
+    "keywords": [
+        "neos",
+        "neoscms",
+        "flow",
+        "logging",
+        "logfile",
+        "log",
+        "exception",
+        "viewer",
+        "analyse"
+    ],
+    "require": {
+        "neos/neos": "^4.3 || ^5.0"
+    },
+    "authors": [
+        {
+            "name": "Sebastian Helzle",
+            "email": "sebastian@helzle.it",
+            "homepage": "https://www.helzle.it",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Shel\\Neos\\Logs\\": "Classes"
+        }
+    },
+    "extra": {
+        "neos": {
+            "package-key": "Shel.Neos.Logs"
+        }
+    }
+}

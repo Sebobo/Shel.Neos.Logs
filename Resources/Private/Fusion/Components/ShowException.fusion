@@ -1,0 +1,23 @@
+prototype(Shel.Neos.Logs:Component.ShowException) < prototype(Neos.Fusion:Component) {
+    filename = ${filename}
+    content = ${content}
+
+    renderer = afx`
+        <div class="neos-content neos-container-fluid">
+            <div class="neos-row-fluid">
+                <h2>Exception {props.filename}</h2>
+                <br/>
+                <pre style="max-width: 100%; white-space: pre-wrap;">
+                    {props.content}
+                </pre>
+            </div>
+
+            <div class="neos-footer">
+                <a class="neos-button">
+                    <Neos.Fusion:UriBuilder @path="attributes.href" action="index" />
+                    {I18n.id('Shel.Neos.Logs:Modules:action.back').value('Back').translate()}
+                </a>
+            </div>
+        </div>
+    `
+}
