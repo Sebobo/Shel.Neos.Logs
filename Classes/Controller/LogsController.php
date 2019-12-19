@@ -92,7 +92,7 @@ class LogsController extends AbstractModuleController
 
         $filepath = realpath($this->logFilesUrl . '/' . $filename);
 
-        if ($filename && strpos($filepath, $this->logFilesUrl) !== false && file_exists($filepath)) {
+        if ($filename && strpos($filepath, realpath($this->logFilesUrl)) !== false && file_exists($filepath)) {
             $fileContent = Files::getFileContents($filepath);
 
             $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)\s+(\w+)\s+(.+)/', $fileContent, $lines);
@@ -126,7 +126,7 @@ class LogsController extends AbstractModuleController
 
         $filepath = realpath($this->exceptionFilesUrl . '/' . $filename);
 
-        if ($filename && strpos($filepath, $this->exceptionFilesUrl) !== false && file_exists($filepath)) {
+        if ($filename && strpos($filepath, realpath($this->exceptionFilesUrl)) !== false && file_exists($filepath)) {
             $fileContent = Files::getFileContents($filepath);
         } else {
             $fileContent = 'Error: Exception not found';
