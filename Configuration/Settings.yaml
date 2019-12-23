@@ -4,7 +4,7 @@ Neos:
       administration:
         submodules:
           shel-neos-logs:
-            label: 'Logfile viewer'
+            label: 'Shel.Neos.Logs:Main:module.label'
             controller: 'Shel\Neos\Logs\Controller\LogsController'
             description: 'Shel.Neos.Logs:Main:module.description'
             icon: fas fa-search
