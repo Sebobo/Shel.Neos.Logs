@@ -101,13 +101,14 @@ class LogsController extends AbstractModuleController
         if ($filename && strpos($filepath, realpath($this->logFilesUrl)) !== false && file_exists($filepath)) {
             $fileContent = Files::getFileContents($filepath);
 
-            $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)\s+(\w+)\s+(.+)/', $fileContent, $lines);
+            $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)(\s+[:.\d]+)?\s+(\w+)\s+(.+)/', $fileContent, $lines);
             $entries = [];
             for ($i = 0; $i < $lineCount; $i++) {
                 $entries[]= [
                     'date' => $lines[1][$i],
-                    'level' => $lines[3][$i],
-                    'message' => $lines[4][$i],
+                    'ip' => $lines[3][$i],
+                    'level' => $lines[4][$i],
+                    'message' => $lines[5][$i],
                 ];
             }
         } else {

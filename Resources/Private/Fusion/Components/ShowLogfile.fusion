@@ -26,6 +26,7 @@ prototype(Shel.Neos.Logs:Component.ShowLogfile) < prototype(Neos.Fusion:Componen
                     <thead>
                         <tr>
                             <th>Date</th>
+                            <th @if.hasIp={props.entries[0].ip}>IP</th>
                             <th>Type</th>
                             <th>Details</th>
                         </tr>
@@ -34,6 +35,7 @@ prototype(Shel.Neos.Logs:Component.ShowLogfile) < prototype(Neos.Fusion:Componen
                         <Neos.Fusion:Loop items={props.entries} itemName="entry">
                             <tr style={'color:' + props.levelColors[entry.level]}>
                                 <td style={'white-space: nowrap'}>{entry.date}</td>
+                                <td @if.hasIp={entry.ip}>{entry.ip}</td>
                                 <td>{entry.level}</td>
                                 <td>{entry.message}</td>
                             </tr>
