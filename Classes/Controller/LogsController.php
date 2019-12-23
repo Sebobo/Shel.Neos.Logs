@@ -76,6 +76,12 @@ class LogsController extends AbstractModuleController
             $exceptionFiles = [];
         }
 
+        usort($exceptionFiles, function ($a, $b) {
+            if ($a['date'] > $b['date']) return -1;
+            if ($a['date'] < $b['date']) return 1;
+            return 0;
+        });
+
         $this->view->assignMultiple([
             'logFiles' => $logFiles,
             'exceptionFiles' => $exceptionFiles,
