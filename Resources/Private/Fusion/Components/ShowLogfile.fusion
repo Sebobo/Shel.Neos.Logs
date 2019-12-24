@@ -15,6 +15,46 @@ prototype(Shel.Neos.Logs:Component.ShowLogfile) < prototype(Neos.Fusion:Componen
     }
 
     renderer = afx`
+        <style>
+            {'
+                .neos .table-wrap {
+                    overflow: hidden;
+                    height: calc(100vh - 300px + 2px);
+                    border: 1px solid #333;
+                }
+                .neos .header-row {
+                    position: relative;
+                    display: block;
+                    border-bottom: 1px solid #333;
+                }
+                .neos.neos-module table th:first-child,
+                .neos.neos-module table td:first-child {
+                    padding-left: 16px !important;
+                }
+                .neos.neos-module table .column__date {
+                    width: 160px;
+                    white-space: nowrap;
+                }
+                .neos.neos-module table .column__ip {
+                    width: 120px;
+                }
+                .neos.neos-module table .column__type {
+                    width: 120px;
+                }
+                .neos.neos-module table .column__details {
+                    width: auto;
+                }
+                .neos.neos-module .table-body {
+                    overflow: auto;
+                    height: calc(100vh - 300px - 40px);
+                    display: block;
+                }
+                .neos.neos-module table td {
+                    line-height: 1.3em;
+                    padding: 5px 16px;
+                }
+            '}
+        </style>
         <div class="neos-content neos-container-fluid">
             <div class="neos-row-fluid">
                 <h2>Log file {props.filename}</h2>
@@ -22,26 +62,28 @@ prototype(Shel.Neos.Logs:Component.ShowLogfile) < prototype(Neos.Fusion:Componen
                 <p @if.noEntries={!props.entries}>
                     {props.content}
                 </p>
-                <table @if.hasEntries={props.entries}>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th @if.hasIp={props.entries[0].ip}>IP</th>
-                            <th>Type</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <Neos.Fusion:Loop items={props.entries} itemName="entry">
-                            <tr style={'color:' + props.levelColors[entry.level]}>
-                                <td style={'white-space: nowrap'}>{entry.date}</td>
-                                <td @if.hasIp={entry.ip}>{entry.ip}</td>
-                                <td>{entry.level}</td>
-                                <td>{entry.message}</td>
+                <div class="table-wrap" @if.hasEntries={props.entries}>
+                    <table>
+                        <thead>
+                            <tr class="header-row">
+                                <th class="column__date">Date</th>
+                                <th class="column__ip" @if.hasIp={props.entries[0].ip}>IP</th>
+                                <th class="column__type">Type</th>
+                                <th class="column__details">Details</th>
                             </tr>
-                        </Neos.Fusion:Loop>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="table-body">
+                            <Neos.Fusion:Loop items={props.entries} itemName="entry">
+                                <tr style={'color:' + props.levelColors[entry.level]}>
+                                    <td class="column__date">{entry.date}</td>
+                                    <td class="column__ip" @if.hasIp={entry.ip}>{entry.ip}</td>
+                                    <td class="column__type">{entry.level}</td>
+                                    <td class="column__details">{entry.message}</td>
+                                </tr>
+                            </Neos.Fusion:Loop>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="neos-footer">
