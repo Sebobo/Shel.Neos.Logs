@@ -1,7 +1,9 @@
 prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
     filename = ${filename}
-    content = ${content}
     entries = ${entries}
+    level = ${level}
+    levels = ${levels}
+    csrfToken = ${csrfToken}
 
     levelColors = Neos.Fusion:DataStructure {
         DEBUG = '#bbb'
@@ -59,9 +61,20 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
             <div class="neos-row-fluid">
                 <h2>Log file {props.filename}</h2>
                 <br/>
-                <p @if.noEntries={!props.entries}>
-                    {props.content}
-                </p>
+                <form method="POST">
+                    <Neos.Fusion:UriBuilder action="showLogfile" @path="attributes.action" />
+                    <input type="hidden" name="moduleArguments[filename]" value={props.filename} />
+                    <input type="hidden" name="__csrfToken" value={String.htmlSpecialChars(props.csrfToken)}/>
+                    <select name="moduleArguments[level]" onchange="this.form.submit();">
+                        <option value="" selected="selected" selected.@if.none={!props.level}>All</option>
+                        <Neos.Fusion:Loop items={props.levels}>
+                            <option value={item} selected="selected" selected.@if.current={item == props.level}>
+                                {item}
+                            </option>
+                        </Neos.Fusion:Loop>
+                    </select>
+                </form>
+                <br/>
                 <div class="table-wrap" @if.hasEntries={props.entries}>
                     <table>
                         <thead>
@@ -93,5 +106,6 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
                 </a>
             </div>
         </div>
+        <Shel.Neos.Logs:Component.FlashMessages flashMessages={props.flashMessages} />
     `
 }

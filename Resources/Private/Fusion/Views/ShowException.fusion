@@ -19,5 +19,6 @@ prototype(Shel.Neos.Logs:View.ShowException) < prototype(Neos.Fusion:Component) 
                 </a>
             </div>
         </div>
+        <Shel.Neos.Logs:Component.FlashMessages flashMessages={props.flashMessages} />
     `
 }

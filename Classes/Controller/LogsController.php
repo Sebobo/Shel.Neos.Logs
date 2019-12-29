@@ -5,6 +5,7 @@ namespace Shel\Neos\Logs\Controller;
 
 use Neos\Error\Messages\Message;
 use Neos\Flow\Mvc\View\JsonView;
+use Neos\Flow\Security\Context as SecurityContext;
 use Neos\Fusion\View\FusionView;
 use Neos\Neos\Controller\Module\AbstractModuleController;
 use Neos\Flow\Annotations as Flow;
@@ -37,6 +38,12 @@ class LogsController extends AbstractModuleController
      * @var string
      */
     protected $exceptionFilesUrl;
+
+    /**
+     * @Flow\Inject
+     * @var SecurityContext
+     */
+    protected $securityContext;
 
     /**
      * @var array
@@ -102,29 +109,45 @@ class LogsController extends AbstractModuleController
         ] = $this->request->getArguments();
 
         $filepath = realpath($this->logFilesUrl . '/' . $filename);
+        $entries = [];
+        $levels = [];
+        $level = $this->request->hasArgument('level') ? $this->request->getArgument('level') : '';
 
         if ($filename && strpos($filepath, realpath($this->logFilesUrl)) !== false && file_exists($filepath)) {
             $fileContent = Files::getFileContents($filepath);
 
             $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)(\s+[:.\d]+)?\s+(\w+)\s+(.+)/', $fileContent, $lines);
-            $entries = [];
+
             for ($i = 0; $i < $lineCount; $i++) {
+                $lineLevel = $lines[4][$i];
+
+                $levels[$lineLevel] = true;
+
+                if ($level && $lineLevel !== $level) {
+                    continue;
+                }
+
                 $entries[]= [
                     'date' => $lines[1][$i],
                     'ip' => $lines[3][$i],
                     'level' => $lines[4][$i],
-                    'message' => $lines[5][$i],
+                    'message' => htmlspecialchars($lines[5][$i]),
                 ];
             }
         } else {
-            $fileContent = 'Error: Logfile not found';
-            $entries = [];
+            $this->addFlashMessage('', 'Logfile could not be read', Message::SEVERITY_ERROR);
         }
 
+        $csrfToken = $this->securityContext->getCsrfProtectionToken();
+        $flashMessages = $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush();
+
         $this->view->assignMultiple([
+            'csrfToken' => $csrfToken,
             'filename' => $filename,
-            'content' => htmlspecialchars($fileContent),
             'entries' => $entries,
+            'flashMessages' => $flashMessages,
+            'levels' => array_keys($levels),
+            'level' => $level,
         ]);
     }
 
@@ -145,9 +168,12 @@ class LogsController extends AbstractModuleController
             $fileContent = 'Error: Exception not found';
         }
 
+        $flashMessages = $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush();
+
         $this->view->assignMultiple([
             'filename' => $filename,
             'content' => htmlspecialchars($fileContent),
+            'flashMessages' => $flashMessages,
         ]);
     }
 
