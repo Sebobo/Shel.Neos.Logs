@@ -118,7 +118,7 @@ class LogsController extends AbstractModuleController
 
         $this->view->assignMultiple([
             'filename' => $filename,
-            'content' => $fileContent,
+            'content' => htmlspecialchars($fileContent),
             'entries' => $entries,
         ]);
     }
@@ -141,7 +141,7 @@ class LogsController extends AbstractModuleController
 
         $this->view->assignMultiple([
             'filename' => $filename,
-            'content' => $fileContent,
+            'content' => htmlspecialchars($fileContent),
         ]);
     }
 }
