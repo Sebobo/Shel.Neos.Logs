@@ -4,6 +4,8 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
     level = ${level}
     levels = ${levels}
     csrfToken = ${csrfToken}
+    lineCount = ${lineCount}
+    limit = ${limit}
 
     levelColors = Neos.Fusion:DataStructure {
         DEBUG = '#bbb'
@@ -62,7 +64,7 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
                 <h2>Log file {props.filename}</h2>
                 <br/>
                 <form method="POST">
-                    <Neos.Fusion:UriBuilder action="showLogfile" @path="attributes.action" />
+                    <Neos.Fusion:UriBuilder action="showLogfile" arguments={{'filename': props.filename}} @path="attributes.action" />
                     <input type="hidden" name="moduleArguments[filename]" value={props.filename} />
                     <input type="hidden" name="__csrfToken" value={String.htmlSpecialChars(props.csrfToken)}/>
                     <select name="moduleArguments[level]" onchange="this.form.submit();">
@@ -72,6 +74,13 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
                                 {item}
                             </option>
                         </Neos.Fusion:Loop>
+                    </select>
+                    <select name="moduleArguments[limit]" onchange="this.form.submit();" style="margin-left:1rem;">
+                        <option value={props.limit} selected="selected">Showing {props.limit} entries</option>
+                        <option value="50" @if.possible={props.lineCount > 50}>Show 50 entries</option>
+                        <option value="100" @if.possible={props.lineCount > 100}>Show 100 entries</option>
+                        <option value="300" @if.possible={props.lineCount > 300}>Show 300 entries</option>
+                        <option value={props.lineCount}>Show all {props.lineCount} entries</option>
                     </select>
                 </form>
                 <br/>

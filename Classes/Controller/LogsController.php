@@ -94,7 +94,7 @@ class LogsController extends AbstractModuleController
         $flashMessages = $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush();
 
         $this->view->assignMultiple([
-            'logFiles' => $logFiles,
+            'logs' => $logFiles,
             'exceptions' => $exceptionFiles,
             'flashMessages' => $flashMessages,
         ]);
@@ -111,14 +111,16 @@ class LogsController extends AbstractModuleController
         $filepath = realpath($this->logFilesUrl . '/' . $filename);
         $entries = [];
         $levels = [];
+        $lineCount = 0;
         $level = $this->request->hasArgument('level') ? $this->request->getArgument('level') : '';
+        $limit = $this->request->hasArgument('limit') ? $this->request->getArgument('limit') : 50;
 
         if ($filename && strpos($filepath, realpath($this->logFilesUrl)) !== false && file_exists($filepath)) {
             $fileContent = Files::getFileContents($filepath);
 
             $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)(\s+[:.\d]+)?\s+(\w+)\s+(.+)/', $fileContent, $lines);
 
-            for ($i = 0; $i < $lineCount; $i++) {
+            for ($i = 0; $i < $lineCount && count($entries) < $limit; $i++) {
                 $lineLevel = $lines[4][$i];
 
                 $levels[$lineLevel] = true;
@@ -148,6 +150,8 @@ class LogsController extends AbstractModuleController
             'flashMessages' => $flashMessages,
             'levels' => array_keys($levels),
             'level' => $level,
+            'lineCount' => $lineCount,
+            'limit' => $limit,
         ]);
     }
 
