@@ -1,5 +1,5 @@
 Shel.Neos.Logs.LogsController {
-    index = Shel.Neos.Logs:Component.Index
-    showLogfile = Shel.Neos.Logs:Component.ShowLogfile
-    showException = Shel.Neos.Logs:Component.ShowException
+    index = Shel.Neos.Logs:View.Index
+    showLogfile = Shel.Neos.Logs:View.ShowLogfile
+    showException = Shel.Neos.Logs:View.ShowException
 }

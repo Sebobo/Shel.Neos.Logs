@@ -1,4 +1,4 @@
-prototype(Shel.Neos.Logs:Component.ShowException) < prototype(Neos.Fusion:Component) {
+prototype(Shel.Neos.Logs:View.ShowException) < prototype(Neos.Fusion:Component) {
     filename = ${filename}
     content = ${content}
 

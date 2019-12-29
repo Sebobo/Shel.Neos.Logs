@@ -1,0 +1,61 @@
+prototype(Shel.Neos.Logs:Component.ExceptionList) < prototype(Neos.Fusion:Component) {
+    exceptions = ${[]}
+
+    renderer = afx`
+        <style>
+            {'
+            .neos.neos-module table th:first-child,
+            .neos.neos-module table td:first-child {
+                padding-left: 0 !important;
+            }
+            .neos.neos-module table .column__excerpt {
+                max-width: calc(100vw - 600px);
+            }
+            .neos.neos-module table .column__excerpt span {
+                width: 100%;
+                display: inline-block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                color: gray;
+            }
+            .neos.neos-module table td {
+                line-height: 1.3em;
+                padding: 3px 16px;
+                height: auto;
+                white-space: nowrap;
+            }
+            .neos.neos-module table td a:hover {
+                text-decoration: underline;
+            }
+            '}
+        </style>
+        <table>
+            <Neos.Fusion:Loop items={props.exceptions} itemName="file">
+                <tr style={'line-height: 1.3'}>
+                    <td>
+                        <a title={'View ' + file.identifier}>
+                            <Neos.Fusion:UriBuilder
+                                @path="attributes.href"
+                                action="showException"
+                                arguments={{'filename': file.identifier}}
+                            />
+                            {Date.formatCldr(file.date, 'HH:mm EEEE, MMMM d, y')} &#8211; {file.identifier}
+                        </a>
+                    </td>
+                    <td class="column__excerpt"><span title={file.excerpt}>{file.excerpt}</span></td>
+                    <td>
+                        <a title={'Delete exception ' + file.identifier} style="margin-left:1rem;">
+                            <Neos.Fusion:UriBuilder
+                                @path="attributes.href"
+                                action="deleteException"
+                                arguments={{'filename': file.identifier}}
+                            />
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            </Neos.Fusion:Loop>
+        </table>
+    `
+}

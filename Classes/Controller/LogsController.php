@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shel\Neos\Logs\Controller;
 
+use Neos\Error\Messages\Message;
 use Neos\Flow\Mvc\View\JsonView;
 use Neos\Fusion\View\FusionView;
 use Neos\Neos\Controller\Module\AbstractModuleController;
@@ -70,6 +71,7 @@ class LogsController extends AbstractModuleController
                     'name' => $exceptionFile,
                     'identifier' => $filename,
                     'date' => $date,
+                    'excerpt' => strip_tags(strtok(Files::getFileContents($exceptionFile), "\n")),
                 ];
             }, Files::readDirectoryRecursively($this->exceptionFilesUrl, '.txt'));
         } catch (FilesException $e) {
@@ -82,9 +84,12 @@ class LogsController extends AbstractModuleController
             return 0;
         });
 
+        $flashMessages = $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush();
+
         $this->view->assignMultiple([
             'logFiles' => $logFiles,
-            'exceptionFiles' => $exceptionFiles,
+            'exceptions' => $exceptionFiles,
+            'flashMessages' => $flashMessages,
         ]);
     }
 
@@ -124,6 +129,7 @@ class LogsController extends AbstractModuleController
     }
 
     /**
+     * Shows the content of a single exception identified by its filename
      */
     public function showExceptionAction(): void
     {
@@ -143,5 +149,29 @@ class LogsController extends AbstractModuleController
             'filename' => $filename,
             'content' => htmlspecialchars($fileContent),
         ]);
+    }
+
+    /**
+     * Deletes a single exception identified by its filename and redirects to the index action
+     */
+    public function deleteExceptionAction(): void
+    {
+        [
+            'filename' => $filename,
+        ] = $this->request->getArguments();
+
+        $filepath = realpath($this->exceptionFilesUrl . '/' . $filename);
+
+        if ($filename && strpos($filepath, realpath($this->exceptionFilesUrl)) !== false && file_exists($filepath)) {
+            if (Files::unlink($filepath)) {
+                $this->addFlashMessage('', sprintf('Exception %s deleted', $filename), Message::SEVERITY_OK);
+            } else {
+                $this->addFlashMessage('', sprintf('Exception %s could not be deleted', $filename), Message::SEVERITY_ERROR);
+            }
+        } else {
+            $this->addFlashMessage('', sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
+        }
+
+        $this->redirect('index');
     }
 }
