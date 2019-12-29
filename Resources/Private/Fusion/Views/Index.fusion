@@ -1,5 +1,5 @@
 prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
-    logFiles = ${logFiles}
+    logs = ${logs}
     exceptions = ${exceptions}
     flashMessages = ${flashMessages}
 
@@ -7,23 +7,8 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
         <div id="shel-neos-logs-app">
             <h2>Log files</h2>
             <br/>
-            <ul>
-                <Neos.Fusion:Loop items={props.logFiles} itemName="file">
-                    <li style={'line-height: 1.3;margin-bottom:3px;'}>
-                        <a>
-                            <Neos.Fusion:UriBuilder
-                                @path="attributes.href"
-                                action="showLogfile"
-                                arguments={{'filename': file.identifier}}
-                            />
-                            {file.name}
-                        </a>
-                    </li>
-                </Neos.Fusion:Loop>
-            </ul>
-
+            <Shel.Neos.Logs:Component.LogList logs={props.logs} />
             <br/>
-
             <h2>Exception files</h2>
             <br/>
             <Shel.Neos.Logs:Component.ExceptionList exceptions={props.exceptions} />
