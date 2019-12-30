@@ -10,6 +10,12 @@ Neos:
             icon: fas fa-search
             privilegeTarget: 'Shel.Neos.Logs:Backend.Module.Administration.Logs'
 
+    userInterface:
+      translation:
+        autoInclude:
+          Shel.Neos.Logs:
+            - 'Main'
+
 Shel:
   Neos:
     Logs:
