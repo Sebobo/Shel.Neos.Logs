@@ -4,12 +4,41 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
     flashMessages = ${flashMessages}
 
     renderer = afx`
+        <style>
+            {'
+            .neos.neos-module table .column__excerpt {
+                max-width: calc(100vw - 700px);
+            }
+            .neos.neos-module table .column__excerpt div {
+                width: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                color: gray;
+            }
+            .neos.neos-module table td {
+                white-space: nowrap;
+            }
+            .neos.neos-module .neos-table a:hover {
+                text-decoration: underline;
+            }
+            .neos.neos-module table .column__actions {
+                width: 90px;
+            }
+            .neos.neos-module table .column__actions a {
+                margin-right: 1rem;
+            }
+            .neos.neos-module table .column__actions a:hover {
+                color: #00b5ff;
+            }
+            '}
+        </style>
         <div id="shel-neos-logs-app">
-            <h2>Log files</h2>
+            <h2>Logs</h2>
             <br/>
             <Shel.Neos.Logs:Component.LogList logs={props.logs} />
             <br/>
-            <h2>Exception files</h2>
+            <h2>Exceptions</h2>
             <br/>
             <Shel.Neos.Logs:Component.ExceptionList exceptions={props.exceptions} />
         </div>
