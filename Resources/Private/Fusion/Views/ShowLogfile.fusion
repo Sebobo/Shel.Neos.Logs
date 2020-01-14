@@ -113,6 +113,14 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
                     <Neos.Fusion:UriBuilder @path="attributes.href" action="index" />
                     {I18n.id('Shel.Neos.Logs:Modules:action.back').value('Back').translate()}
                 </a>
+                <a class="neos-button">
+                    <Neos.Fusion:UriBuilder
+                        @path="attributes.href"
+                        action="downloadLogfile"
+                        arguments={{'filename': props.filename}}
+                    />
+                    {I18n.id('Shel.Neos.Logs:Modules:action.download').value('Download').translate()}
+                </a>
             </div>
         </div>
         <Shel.Neos.Logs:Component.FlashMessages flashMessages={props.flashMessages} />

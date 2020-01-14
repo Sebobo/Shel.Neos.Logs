@@ -163,6 +163,26 @@ class LogsController extends AbstractModuleController
     }
 
     /**
+     * Downloads a single exception identified by its filename
+     */
+    public function downloadLogfileAction(): void
+    {
+        [
+            'filename' => $filename,
+        ] = $this->request->getArguments();
+
+        $filepath = realpath($this->logFilesUrl . '/' . $filename);
+
+        if ($filename && strpos($filepath, realpath($this->logFilesUrl)) !== false && file_exists($filepath)) {
+            $this->startFileDownload($filepath, $filename);
+        } else {
+            $this->addFlashMessage('', sprintf('Logfile %s not found', $filename), Message::SEVERITY_ERROR);
+        }
+
+        $this->redirect('index');
+    }
+
+    /**
      * Shows the content of a single exception identified by its filename
      */
     public function showExceptionAction(): void
@@ -210,5 +230,46 @@ class LogsController extends AbstractModuleController
         }
 
         $this->redirect('index');
+    }
+
+    /**
+     * Downloads a single exception identified by its filename
+     */
+    public function downloadExceptionAction(): void
+    {
+        [
+            'filename' => $filename,
+        ] = $this->request->getArguments();
+
+        $filepath = realpath($this->exceptionFilesUrl . '/' . $filename);
+
+        if ($filename && strpos($filepath, realpath($this->exceptionFilesUrl)) !== false && file_exists($filepath)) {
+            $this->startFileDownload($filepath, $filename);
+        } else {
+            $this->addFlashMessage('', sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
+        }
+
+        $this->redirect('index');
+    }
+
+    /**
+     * Will start the download of the given file and exits the process
+     *
+     * @param string $filepath
+     * @param string $filename
+     */
+    protected function startFileDownload(string $filepath, string $filename): void
+    {
+        $content = Files::getFileContents($filepath);
+        header('Pragma: no-cache');
+        header('Content-type: application/text');
+        header('Content-Length: ' . strlen($content));
+        header('Content-Disposition: attachment; filename=' . $filename);
+        header('Content-Transfer-Encoding: binary');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+
+        echo $content;
+
+        exit;
     }
 }
