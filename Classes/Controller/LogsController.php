@@ -78,7 +78,7 @@ class LogsController extends AbstractModuleController
                     'name' => $exceptionFile,
                     'identifier' => $filename,
                     'date' => $date,
-                    'excerpt' => strip_tags(strtok(Files::getFileContents($exceptionFile), "\n")),
+                    'excerpt' => $this->getExcerptFromException(Files::getFileContents($exceptionFile)),
                 ];
             }, Files::readDirectoryRecursively($this->exceptionFilesUrl, '.txt'));
         } catch (FilesException $e) {
@@ -98,6 +98,13 @@ class LogsController extends AbstractModuleController
             'exceptions' => $exceptionFiles,
             'flashMessages' => $flashMessages,
         ]);
+    }
+
+    protected function getExcerptFromException(string $content): string
+    {
+        $excerpt = strip_tags(strtok($content, "\n"));
+        $excerpt = str_replace(FLOW_PATH_ROOT, '…/', $excerpt);
+        return $excerpt;
     }
 
     /**
