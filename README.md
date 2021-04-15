@@ -33,7 +33,7 @@ Lines in the logfiles can be filtered by their level. You can also change the nu
 
 Overview screen:
 
-![Overview](Documentation/overview.jpg)]
+![Overview](Documentation/overview.jpg)
 
 Viewing a logfile
 
