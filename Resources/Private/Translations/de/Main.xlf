@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-    <file original="" product-name="Shel.Neos.Logs" source-language="de" datatype="plaintext">
+    <file original="" product-name="Shel.Neos.Logs" source-language="en" target-language="de" datatype="plaintext">
         <body>
             <trans-unit id="module.label" xml:space="preserve">
-                <source>Logfile-Viewer</source>
+                <source>Logfile viewer</source>
+                <target>Logfile-Viewer</target>
             </trans-unit>
             <trans-unit id="module.description" xml:space="preserve">
-                <source>Anzeigen und Analysieren von Protokolldateien und Exceptions</source>
+                <source>Show and analyse log files and exceptions</source>
+                <target>Anzeigen und Analysieren von Protokolldateien und Exceptions</target>
             </trans-unit>
         </body>
     </file>
