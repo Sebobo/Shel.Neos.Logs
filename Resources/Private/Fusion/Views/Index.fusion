@@ -2,6 +2,7 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
     logs = ${logs}
     exceptions = ${exceptions}
     flashMessages = ${flashMessages}
+    limit = ${limit}
 
     renderer = afx`
         <style>
@@ -38,8 +39,19 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
             <br/>
             <Shel.Neos.Logs:Component.LogList logs={props.logs} />
             <br/>
-            <h2>Exceptions</h2>
+            <h2>{props.limit}/{numberOfExceptions} Exceptions</h2>
             <br/>
+            <form method="POST">
+                <Neos.Fusion:UriBuilder action="index" @path="attributes.action" />
+                <input type="hidden" name="__csrfToken" value={Security.csrfToken()}/>
+                <select name="moduleArguments[limit]" onchange="this.form.submit();" style="margin-left:1rem;">
+                    <option value="10" selected={props.limit == 10}>Show {props.limit} exceptions</option>
+                    <option value="50" selected={props.limit == 50}>Show 50 exceptions</option>
+                    <option value="100" selected={props.limit == 100}>Show 100 exceptions</option>
+                    <option value="300" selected={props.limit == 300}>Show 300 exceptions</option>
+                    <option value="0" selected={props.limit == 0}>Show all exceptions</option>
+                </select>
+            </form>
             <Shel.Neos.Logs:Component.ExceptionList exceptions={props.exceptions} />
         </div>
         <Shel.Neos.Logs:Component.FlashMessages flashMessages={props.flashMessages} />
