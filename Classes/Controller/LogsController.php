@@ -142,7 +142,7 @@ class LogsController extends AbstractModuleController
                 ];
             }
         } else {
-            $this->addFlashMessage('', 'Logfile could not be read', Message::SEVERITY_ERROR);
+            $this->addFlashMessage('Logfile could not be read', Message::SEVERITY_ERROR);
         }
 
         $this->view->assignMultiple([
@@ -168,7 +168,7 @@ class LogsController extends AbstractModuleController
         if ($filename && $this->isFilenameValid($filepath)) {
             $this->startFileDownload($filepath, $filename);
         } else {
-            $this->addFlashMessage('', sprintf('Logfile %s not found', $filename), Message::SEVERITY_ERROR);
+            $this->addFlashMessage(sprintf('Logfile %s not found', $filename), Message::SEVERITY_ERROR);
         }
 
         $this->redirect('index');
@@ -185,7 +185,7 @@ class LogsController extends AbstractModuleController
         if ($filename && $this->isFilenameValid($filepath)) {
             $fileContent = Files::getFileContents($filepath);
         } else {
-            $this->addFlashMessage('', sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
+            $this->addFlashMessage(sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
             $fileContent = 'Error: Exception not found';
         }
 
@@ -219,13 +219,13 @@ class LogsController extends AbstractModuleController
         $filepath = $this->getFilepath($filename);
         if ($filename && $this->isFilenameValid($filepath)) {
             if (Files::unlink($filepath)) {
-                $this->addFlashMessage('', sprintf('Exception %s deleted', $filename), Message::SEVERITY_OK);
+                $this->addFlashMessage(sprintf('Exception %s deleted', $filename));
             } else {
-                $this->addFlashMessage('', sprintf('Exception %s could not be deleted', $filename),
+                $this->addFlashMessage(sprintf('Exception %s could not be deleted', $filename),
                     Message::SEVERITY_ERROR);
             }
         } else {
-            $this->addFlashMessage('', sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
+            $this->addFlashMessage(sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
         }
 
         $this->redirect('index');
@@ -242,7 +242,7 @@ class LogsController extends AbstractModuleController
         if ($filename && $this->isFilenameValid($filepath)) {
             $this->startFileDownload($filepath, $filename);
         } else {
-            $this->addFlashMessage('', sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
+            $this->addFlashMessage(sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
         }
 
         $this->redirect('index');
