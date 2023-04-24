@@ -140,6 +140,10 @@ class LogsController extends AbstractModuleController
 
             $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)(\s+[:.\d]+)?\s+(\w+)\s+(.+)/', $fileContent, $lines);
 
+            for($i = 0; $i <=5; $i++){
+                $lines[$i] = array_reverse($lines[$i]);
+            }
+
             for ($i = 0; $i < $lineCount && count($entries) < $limit; $i++) {
                 $lineLevel = $lines[4][$i];
 
