@@ -40,6 +40,12 @@ class LogsController extends AbstractModuleController
     protected $exceptionFilesUrl;
 
     /**
+     * @Flow\InjectConfiguration(path="pagination.exceptions.pageSize", package="Shel.Neos.Logs")
+     * @var int
+     */
+    protected $exceptionsPageSize;
+
+    /**
      * @Flow\Inject
      * @var SecurityContext
      */
@@ -56,7 +62,7 @@ class LogsController extends AbstractModuleController
     /**
      * Renders the app to interact with the nodetype graph
      */
-    public function indexAction(int $limit = 10): void
+    public function indexAction(int $exceptionsPage = 0): void
     {
         try {
             $logFiles = array_map(function (string $logFile) {
@@ -73,6 +79,7 @@ class LogsController extends AbstractModuleController
         try {
             $exceptionFiles = Files::readDirectoryRecursively($this->exceptionFilesUrl, '.txt');
             $numberOfExceptions = count($exceptionFiles);
+            $numberOfPages = floor($numberOfExceptions / $this->exceptionsPageSize);
             rsort($exceptionFiles);
             $exceptionFiles = array_map(function (string $exceptionFile) {
                 $filename = basename($exceptionFile);
@@ -83,7 +90,7 @@ class LogsController extends AbstractModuleController
                     'date' => $date,
                     'excerpt' => $this->getExcerptFromException(Files::getFileContents($exceptionFile)),
                 ];
-            }, array_slice($exceptionFiles, 0, $limit));
+            }, array_slice($exceptionFiles, $exceptionsPage*$this->exceptionsPageSize, $this->exceptionsPageSize));
         } catch (FilesException $e) {
             $exceptionFiles = [];
         }
@@ -100,7 +107,8 @@ class LogsController extends AbstractModuleController
             'logs' => $logFiles,
             'exceptions' => $exceptionFiles,
             'flashMessages' => $flashMessages,
-            'limit' => $limit,
+            'exceptionsPage' => $exceptionsPage,
+            'numberOfPages' => $numberOfPages,
             'numberOfExceptions' => $numberOfExceptions
         ]);
     }
