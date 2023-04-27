@@ -7,6 +7,9 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
     renderer = afx`
         <style>
             {'
+            .neos.neos-module h2 {
+                margin-bottom: 1rem;
+            }
             .neos.neos-module table .column__excerpt {
                 max-width: calc(100vw - 700px);
             }
@@ -32,11 +35,10 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
             .neos.neos-module table .column__actions a:hover {
                 color: #00b5ff;
             }
-            .neos.neos-module .pagination .neos-button {
-                margin: 0.5rem;
-            }
-            .neos.neos-module .pagination .current {
-                margin: 0.5rem;
+            .neos.neos-module .pagination {
+                display: flex;
+                gap: 0.5rem;
+                margin: 0.5rem 0;
             }
             .page-selector {
                 display: inline-block;
@@ -45,32 +47,49 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
         </style>
         <div id="shel-neos-logs-app">
             <h2>Logs</h2>
-            <br/>
             <Shel.Neos.Logs:Component.LogList logs={props.logs} />
-            <br/>
             <h2>Exceptions ({numberOfExceptions})</h2>
-            <div class="pagination">
-                <Neos.Fusion:Link.Action class="neos-button" href.action="index" href.arguments.exceptionsPage={0}>
-                    |&lt; First
+            <div class="pagination" @if.hasMultiplePages={numberOfPages > 1}>
+                <Neos.Fusion:Link.Action
+                    class="neos-button"
+                    href.action="index"
+                    href.arguments.exceptionsPage={0}
+                    @if.notFirst={exceptionsPage != 0}
+                >
+                    First
                 </Neos.Fusion:Link.Action>
-                <Neos.Fusion:Link.Action  @if.notFirst={exceptionsPage != 0} class="neos-button" href.action="index" href.arguments.exceptionsPage={exceptionsPage - 1} >
-                    &lt; Previous
+                <Neos.Fusion:Link.Action
+                    @if.notFirst={exceptionsPage != 0}
+                    class="neos-button"
+                    href.action="index"
+                    href.arguments.exceptionsPage={exceptionsPage - 1}
+                >
+                    &lt;
                 </Neos.Fusion:Link.Action>
-                <span class="current">
+                <span class="neos-button">
                     Page {exceptionsPage + 1}
                 </span>
-                <Neos.Fusion:Link.Action @if.notLast={exceptionsPage < numberOfPages} class="neos-button" href.action="index" href.arguments.exceptionsPage={exceptionsPage + 1} >
-                    Next &gt;
+                <Neos.Fusion:Link.Action
+                    @if.notLast={exceptionsPage < numberOfPages - 1}
+                    class="neos-button" href.action="index"
+                    href.arguments.exceptionsPage={exceptionsPage + 1}
+                >
+                    &gt;
                 </Neos.Fusion:Link.Action>
-                <Neos.Fusion:Link.Action class="neos-button" href.action="index" href.arguments.exceptionsPage={numberOfPages} >
-                    Last &gt;|
+                <Neos.Fusion:Link.Action
+                    class="neos-button"
+                    href.action="index"
+                    href.arguments.exceptionsPage={numberOfPages - 1}
+                    @if.notLast={exceptionsPage < numberOfPages - 1}
+                >
+                    Last
                 </Neos.Fusion:Link.Action>
-                <form method="POST" class="page-selector">
+                <form method="post" class="page-selector" @if.hasMorePages={numberOfPages > 2}>
                     <Neos.Fusion:UriBuilder action="index" @path="attributes.action" />
                     <input type="hidden" name="__csrfToken" value={Security.csrfToken()}/>
                     <select name="moduleArguments[exceptionsPage]" onchange="this.form.submit();" style="margin-left:1rem;">
                         <option value="">Select page</option>
-                        <Neos.Fusion:Loop items={Array.range(0, numberOfPages)}>
+                        <Neos.Fusion:Loop items={Array.range(0, numberOfPages - 1)}>
                             <option value={item}>Go to page {item+1}</option>
                         </Neos.Fusion:Loop>
                     </select>

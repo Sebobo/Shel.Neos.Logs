@@ -81,7 +81,7 @@ class LogsController extends AbstractModuleController
         try {
             $exceptionFiles = Files::readDirectoryRecursively($this->exceptionFilesUrl, '.txt');
             $numberOfExceptions = count($exceptionFiles);
-            $numberOfPages = floor($numberOfExceptions / $this->exceptionsPageSize);
+            $numberOfPages = ceil($numberOfExceptions / $this->exceptionsPageSize);
             rsort($exceptionFiles);
             $exceptionFiles = array_map(function (string $exceptionFile) {
                 $filename = basename($exceptionFile);
