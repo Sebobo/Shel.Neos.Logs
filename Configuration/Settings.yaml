@@ -19,5 +19,10 @@ Neos:
 Shel:
   Neos:
     Logs:
+      pagination:
+        exceptions:
+          pageSize: 20
+        logs:
+          pageSize: 50
       logFilesUrl: '%FLOW_PATH_DATA%Logs'
       exceptionFilesUrl: '%FLOW_PATH_DATA%Logs/Exceptions'
