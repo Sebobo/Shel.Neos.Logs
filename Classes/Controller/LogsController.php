@@ -135,8 +135,8 @@ class LogsController extends AbstractModuleController
         $level = $this->request->hasArgument('level') ? $this->request->getArgument('level') : '';
         $limit = $this->request->hasArgument('limit') ? $this->request->getArgument('limit') : 50;
 
-        $filepath = $this->getFilepath($filename);
-        if ($filename && $this->isFilenameValid($filepath)) {
+        $filepath = $this->getFilepath($this->logFilesUrl, $filename);
+        if ($filename && $this->isFilenameValid($this->logFilesUrl, $filepath)) {
             $fileContent = Files::getFileContents($filepath);
 
             $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)(\s+[:.\d]+)?\s+(\w+)\s+(.+)/', $fileContent, $lines);
@@ -184,8 +184,8 @@ class LogsController extends AbstractModuleController
     {
         ['filename' => $filename] = $this->request->getArguments();
 
-        $filepath = $this->getFilepath($filename);
-        if ($filename && $this->isFilenameValid($filepath)) {
+        $filepath = $this->getFilepath($this->logFilesUrl, $filename);
+        if ($filename && $this->isFilenameValid($this->logFilesUrl, $filepath)) {
             $this->startFileDownload($filepath, $filename);
         } else {
             $this->addFlashMessage(sprintf('Logfile %s not found', $filename), Message::SEVERITY_ERROR);
@@ -201,8 +201,8 @@ class LogsController extends AbstractModuleController
     {
         ['filename' => $filename] = $this->request->getArguments();
 
-        $filepath = $this->getFilepath($filename);
-        if ($filename && $this->isFilenameValid($filepath)) {
+        $filepath = $this->getFilepath($this->exceptionFilesUrl, $filename);
+        if ($filename && $this->isFilenameValid($this->exceptionFilesUrl, $filepath)) {
             $fileContent = Files::getFileContents($filepath);
         } else {
             $this->addFlashMessage(sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
@@ -216,17 +216,17 @@ class LogsController extends AbstractModuleController
         ]);
     }
 
-    protected function getFilepath(string $filename): string
+    protected function getFilepath(string $folderPath, string $filename): string
     {
-        return realpath($this->exceptionFilesUrl . '/' . $filename);
+        return realpath($folderPath . '/' . $filename);
     }
 
-    protected function isFilenameValid(string $filepath): bool
+    protected function isFilenameValid(string $folderPath, string $filepath): bool
     {
         if (!$filepath) {
             return false;
         }
-        return file_exists($filepath) && str_contains($filepath, realpath($this->exceptionFilesUrl));
+        return file_exists($filepath) && str_contains($filepath, realpath($folderPath));
     }
 
     /**
@@ -236,8 +236,8 @@ class LogsController extends AbstractModuleController
     {
         ['filename' => $filename] = $this->request->getArguments();
 
-        $filepath = $this->getFilepath($filename);
-        if ($filename && $this->isFilenameValid($filepath)) {
+        $filepath = $this->getFilepath($this->exceptionFilesUrl, $filename);
+        if ($filename && $this->isFilenameValid($this->exceptionFilesUrl, $filepath)) {
             if (Files::unlink($filepath)) {
                 $this->addFlashMessage(sprintf('Exception %s deleted', $filename));
             } else {
@@ -258,8 +258,8 @@ class LogsController extends AbstractModuleController
     {
         ['filename' => $filename] = $this->request->getArguments();
 
-        $filepath = $this->getFilepath($filename);
-        if ($filename && $this->isFilenameValid($filepath)) {
+        $filepath = $this->getFilepath($this->exceptionFilesUrl, $filename);
+        if ($filename && $this->isFilenameValid($this->exceptionFilesUrl, $filepath)) {
             $this->startFileDownload($filepath, $filename);
         } else {
             $this->addFlashMessage(sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
