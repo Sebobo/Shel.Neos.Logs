@@ -31,6 +31,9 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
                     display: block;
                     border-bottom: 1px solid #333;
                 }
+                .neos .header-row th {
+                    line-height: 2;
+                }
                 .neos.neos-module table th:first-child,
                 .neos.neos-module table td:first-child {
                     padding-left: 16px !important;
@@ -47,6 +50,7 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
                 }
                 .neos.neos-module table .column__details {
                     width: auto;
+                    white-space: pre-line;
                 }
                 .neos.neos-module .table-body {
                     overflow: auto;
@@ -56,6 +60,7 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
                 .neos.neos-module table td {
                     line-height: 1.3em;
                     padding: 5px 16px;
+                    vertical-align: top;
                 }
             '}
         </style>

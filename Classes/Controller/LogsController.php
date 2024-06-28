@@ -4,53 +4,39 @@ declare(strict_types=1);
 
 namespace Shel\Neos\Logs\Controller;
 
+/**
+ * This file is part of the Shel.Neos.Logs package.
+ * (c) by Sebastian Helzle
+ */
+
 use Neos\Error\Messages\Message;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Mvc\View\JsonView;
 use Neos\Flow\Security\Context as SecurityContext;
 use Neos\Fusion\View\FusionView;
 use Neos\Neos\Controller\Module\AbstractModuleController;
-use Neos\Utility\Exception\FilesException;
 use Neos\Utility\Files;
 
-/**
- * @Flow\Scope("singleton")
- */
+#[Flow\Scope('singleton')]
 class LogsController extends AbstractModuleController
 {
-    /**
-     * @var FusionView
-     */
-    protected $view;
 
     /**
      * @var array
      */
     protected $supportedMediaTypes = ['application/json', 'text/html'];
 
-    /**
-     * @Flow\InjectConfiguration(path="logFilesUrl", package="Shel.Neos.Logs")
-     * @var string
-     */
-    protected $logFilesUrl;
+    #[Flow\InjectConfiguration('logFilesUrl', 'Shel.Neos.Logs')]
+    protected string $logFilesUrl;
 
-    /**
-     * @Flow\InjectConfiguration(path="exceptionFilesUrl", package="Shel.Neos.Logs")
-     * @var string
-     */
-    protected $exceptionFilesUrl;
+    #[Flow\InjectConfiguration('exceptionFilesUrl', 'Shel.Neos.Logs')]
+    protected string $exceptionFilesUrl;
 
-    /**
-     * @Flow\InjectConfiguration(path="pagination.exceptions.pageSize", package="Shel.Neos.Logs")
-     * @var int
-     */
-    protected $exceptionsPageSize;
+    #[Flow\InjectConfiguration('pagination.exceptions.pageSize', 'Shel.Neos.Logs')]
+    protected int $exceptionsPageSize;
 
-    /**
-     * @Flow\Inject
-     * @var SecurityContext
-     */
-    protected $securityContext;
+    #[Flow\Inject]
+    protected SecurityContext $securityContext;
 
     /**
      * @var array
@@ -74,7 +60,8 @@ class LogsController extends AbstractModuleController
                     'identifier' => $filename,
                 ];
             }, Files::readDirectoryRecursively($this->logFilesUrl, '.log'));
-        } catch (FilesException $e) {
+        } catch (\Exception $e) {
+            $this->addFlashMessage($e->getMessage(), 'Logfiles could not be read', Message::SEVERITY_ERROR);
             $logFiles = [];
         }
 
@@ -92,19 +79,17 @@ class LogsController extends AbstractModuleController
                     'date' => $date,
                     'excerpt' => $this->getExcerptFromException(Files::getFileContents($exceptionFile)),
                 ];
-            }, array_slice($exceptionFiles, $exceptionsPage*$this->exceptionsPageSize, $this->exceptionsPageSize));
-        } catch (FilesException $e) {
+            }, array_slice($exceptionFiles, $exceptionsPage * $this->exceptionsPageSize, $this->exceptionsPageSize));
+        } catch (\Exception $e) {
+            $this->addFlashMessage($e->getMessage(), 'Exception files could not be read', Message::SEVERITY_ERROR);
             $exceptionFiles = [];
+            $numberOfExceptions = 0;
+            $numberOfPages = 0;
         }
 
+        // Sort exception by date with the newest first
         usort($exceptionFiles, static function ($a, $b) {
-            if ($a['date'] > $b['date']) {
-                return -1;
-            }
-            if ($a['date'] < $b['date']) {
-                return 1;
-            }
-            return 0;
+            return ($a['date'] <=> $b['date']) * -1;
         });
 
         $flashMessages = $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush();
@@ -115,14 +100,14 @@ class LogsController extends AbstractModuleController
             'flashMessages' => $flashMessages,
             'exceptionsPage' => $exceptionsPage,
             'numberOfPages' => $numberOfPages,
-            'numberOfExceptions' => $numberOfExceptions
+            'numberOfExceptions' => $numberOfExceptions,
         ]);
     }
 
     protected function getExcerptFromException(string $content): string
     {
-        $excerpt = strip_tags(strtok($content, "\n"));
-        return str_replace(FLOW_PATH_ROOT, '…/', $excerpt);
+        preg_match('/^(?s)(.*?)(?:\R{2,}|$)/', strip_tags($content), $excerpt);
+        return str_replace([FLOW_PATH_ROOT, "\n"], ['…/', ''], $excerpt[0] ?? '');
     }
 
     public function showLogfileAction(): void
@@ -141,7 +126,7 @@ class LogsController extends AbstractModuleController
 
             $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)(\s+[:.\d]+)?\s+(\w+)\s+(.+)/', $fileContent, $lines);
 
-            for($i = 0; $i <=5; $i++){
+            for ($i = 0; $i <= 5; $i++) {
                 $lines[$i] = array_reverse($lines[$i]);
             }
 
@@ -158,7 +143,7 @@ class LogsController extends AbstractModuleController
                     'date' => $lines[1][$i],
                     'ip' => $lines[3][$i],
                     'level' => $lines[4][$i],
-                    'message' => htmlspecialchars($lines[5][$i]),
+                    'message' => htmlspecialchars($lines[5][$i], ENT_QUOTES | ENT_HTML5),
                 ];
             }
         } else {
@@ -211,8 +196,8 @@ class LogsController extends AbstractModuleController
 
         $this->view->assignMultiple([
             'filename' => $filename,
-            'content' => htmlspecialchars($fileContent),
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
+            ...$this->extractExcerptAndTraceFromException($fileContent),
         ]);
     }
 
@@ -284,5 +269,21 @@ class LogsController extends AbstractModuleController
         echo $content;
 
         exit;
+    }
+
+    /**
+     * @return array{excerpt: string, stacktrace: string}
+     */
+    protected function extractExcerptAndTraceFromException(string $fileContent): array
+    {
+        $content = htmlspecialchars($fileContent, ENT_QUOTES | ENT_HTML5);
+        preg_match('/^(?s)(.*?)(?:\R{2,}|$)(.*)/', $content, $matches);
+        $excerpt = str_replace(FLOW_PATH_ROOT, '…/', $matches[1] ?? '');;
+        $stacktrace = str_replace(FLOW_PATH_ROOT, '…/', $matches[2] ?? '');
+
+        return [
+            'excerpt' => $excerpt,
+            'stacktrace' => $stacktrace,
+        ];
     }
 }
