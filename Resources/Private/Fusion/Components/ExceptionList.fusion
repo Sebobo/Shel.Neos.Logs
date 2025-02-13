@@ -12,6 +12,11 @@ prototype(Shel.Neos.Logs:Component.ExceptionList) < prototype(Neos.Fusion:Compon
                 </tr>
             </thead>
             <tbody>
+            <tr @if={!props.exceptions}>
+                <td colspan="4">
+                    <strong>No exceptions found</strong>
+                </td>
+            </tr>
             <Neos.Fusion:Loop items={props.exceptions} itemName="file">
                 <tr style={'line-height: 1.3'}>
                     <td>

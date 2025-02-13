@@ -2,6 +2,7 @@ prototype(Shel.Neos.Logs:View.ShowException) < prototype(Neos.Fusion:Component) 
     filename = ${filename}
     excerpt = ${excerpt}
     stacktrace = ${stacktrace}
+    error = ${error}
 
     renderer = afx`
         <style>
@@ -29,10 +30,11 @@ prototype(Shel.Neos.Logs:View.ShowException) < prototype(Neos.Fusion:Component) 
         <div class="neos-content neos-container-fluid">
             <div class="neos-row-fluid exception-details">
                 <h2>Exception {props.filename}</h2>
-                <pre class="excerpt">
+                <pre @if={props.error}>{props.error}</pre>
+                <pre class="excerpt" @if={props.excerpt}>
                     {props.excerpt}
                 </pre>
-                <pre class="stacktrace">
+                <pre class="stacktrace" @if={props.stacktrace}>
                     {props.stacktrace}
                 </pre>
             </div>
@@ -45,7 +47,7 @@ prototype(Shel.Neos.Logs:View.ShowException) < prototype(Neos.Fusion:Component) 
                     />
                     {I18n.id('Shel.Neos.Logs:Modules:action.back').value('Back').translate()}
                 </a>
-                <a class="neos-button">
+                <a class="neos-button" @if={!props.error}>
                     <Neos.Fusion:UriBuilder
                         @path="attributes.href"
                         action="downloadException"

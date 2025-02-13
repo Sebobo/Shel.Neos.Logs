@@ -65,41 +65,40 @@ class LogsController extends AbstractModuleController
             $logFiles = [];
         }
 
-        try {
-            $exceptionFiles = Files::readDirectoryRecursively($this->exceptionFilesUrl, '.txt');
-            $numberOfExceptions = count($exceptionFiles);
-            $numberOfPages = ceil($numberOfExceptions / $this->exceptionsPageSize);
-            rsort($exceptionFiles);
-            $exceptionFiles = array_map(function (string $exceptionFile) {
-                $filename = basename($exceptionFile);
-                $date = \DateTime::createFromFormat('YmdHi', substr($filename, 0, 12));
-                return [
-                    'name' => $exceptionFile,
-                    'identifier' => $filename,
-                    'date' => $date,
-                    'excerpt' => $this->getExcerptFromException(Files::getFileContents($exceptionFile)),
-                ];
-            }, array_slice($exceptionFiles, $exceptionsPage * $this->exceptionsPageSize, $this->exceptionsPageSize));
-        } catch (\Exception $e) {
-            $this->addFlashMessage($e->getMessage(), 'Exception files could not be read', Message::SEVERITY_ERROR);
-            $exceptionFiles = [];
-            $numberOfExceptions = 0;
-            $numberOfPages = 0;
-        }
+        $exceptionFiles = [];
+        if (is_dir($this->exceptionFilesUrl)) {
+            try {
+                $exceptionFiles = Files::readDirectoryRecursively($this->exceptionFilesUrl, '.txt');
+                rsort($exceptionFiles);
+                $exceptionFiles = array_map(function (string $exceptionFile) {
+                    $filename = basename($exceptionFile);
+                    $date = \DateTime::createFromFormat('YmdHi', substr($filename, 0, 12));
+                    return [
+                        'name' => $exceptionFile,
+                        'identifier' => $filename,
+                        'date' => $date,
+                        'excerpt' => $this->getExcerptFromException(Files::getFileContents($exceptionFile)),
+                    ];
+                }, array_slice($exceptionFiles, $exceptionsPage * $this->exceptionsPageSize, $this->exceptionsPageSize));
+            } catch (\Exception $e) {
+                $this->addFlashMessage($e->getMessage(), 'Exception files could not be read', Message::SEVERITY_ERROR);
+            }
 
-        // Sort exception by date with the newest first
-        usort($exceptionFiles, static function ($a, $b) {
-            return ($a['date'] <=> $b['date']) * -1;
-        });
+            // Sort exception by date with the newest first
+            usort($exceptionFiles, static function ($a, $b) {
+                return ($a['date'] <=> $b['date']) * -1;
+            });
+        }
 
         $flashMessages = $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush();
 
+        $numberOfExceptions = count($exceptionFiles);
         $this->view->assignMultiple([
             'logs' => $logFiles,
             'exceptions' => $exceptionFiles,
             'flashMessages' => $flashMessages,
             'exceptionsPage' => $exceptionsPage,
-            'numberOfPages' => $numberOfPages,
+            'numberOfPages' => ceil($numberOfExceptions / $this->exceptionsPageSize),
             'numberOfExceptions' => $numberOfExceptions,
         ]);
     }
@@ -185,17 +184,21 @@ class LogsController extends AbstractModuleController
     public function showExceptionAction(): void
     {
         ['filename' => $filename] = $this->request->getArguments();
+        $error = false;
+        $fileContent = '';
 
         $filepath = $this->getFilepath($this->exceptionFilesUrl, $filename);
         if ($filename && $this->isFilenameValid($this->exceptionFilesUrl, $filepath)) {
             $fileContent = Files::getFileContents($filepath);
         } else {
             $this->addFlashMessage(sprintf('Exception %s not found', $filename), Message::SEVERITY_ERROR);
-            $fileContent = 'Error: Exception not found';
+            $error = 'Error: Exception not found';
         }
 
         $this->view->assignMultiple([
             'filename' => $filename,
+            'content' => htmlspecialchars($fileContent),
+            'error' => $error,
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             ...$this->extractExcerptAndTraceFromException($fileContent),
         ]);
@@ -203,7 +206,11 @@ class LogsController extends AbstractModuleController
 
     protected function getFilepath(string $folderPath, string $filename): string
     {
-        return realpath($folderPath . '/' . $filename);
+        $path = realpath($folderPath . '/' . $filename);
+        if ($path === false) {
+            $path = '';
+        }
+        return $path;
     }
 
     protected function isFilenameValid(string $folderPath, string $filepath): bool
