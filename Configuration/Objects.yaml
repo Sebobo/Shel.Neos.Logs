@@ -1,0 +1,9 @@
+Shel\Neos\Logs\Controller\LogsController:
+  properties:
+    loggerCache:
+      object:
+        factoryObjectName: Neos\Flow\Cache\CacheManager
+        factoryMethodName: getCache
+        arguments:
+          1:
+            value: Shel_Neos_Logs_Cache

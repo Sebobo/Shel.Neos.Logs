@@ -1,0 +1,30 @@
+prototype(Shel.Neos.Logs:Component.ExceptionList) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        exceptions = ${PropTypes.arrayOf(PropTypes.instanceOf('Shel\Neos\Logs\Model\ParsedException'))}
+    }
+    exceptions = ${[]}
+
+    renderer = afx`
+        <table class="neos-table">
+            <thead>
+                <tr>
+                    <td></td>
+                    <td>Date</td>
+                    <td>Identifier</td>
+                    <td>Excerpt</td>
+                    <td>Actions</td>
+                </tr>
+            </thead>
+            <tbody>
+            <tr @if={!props.exceptions}>
+                <td colspan="4">
+                    <strong>No exceptions found</strong>
+                </td>
+            </tr>
+            <Neos.Fusion:Loop items={props.exceptions} itemName="exception">
+                <Shel.Neos.Logs:Component.ExceptionList.Item exception={exception} />
+            </Neos.Fusion:Loop>
+            </tbody>
+        </table>
+    `
+}

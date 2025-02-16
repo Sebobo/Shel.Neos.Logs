@@ -1,4 +1,13 @@
 prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        // TODO: Define shape
+        logs = ${PropTypes.arrayOf(PropTypes.dataStructure({}))}
+        exceptions = ${PropTypes.arrayOf(PropTypes.instanceOf('Shel\Neos\Logs\Model\ParsedException'))}
+        // TODO: Define shape
+        flashMessages = ${PropTypes.arrayOf(PropTypes.dataStructure({}))}
+        limit = ${PropTypes.integer}
+    }
+
     logs = ${logs}
     exceptions = ${exceptions}
     flashMessages = ${flashMessages}
