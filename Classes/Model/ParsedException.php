@@ -34,14 +34,6 @@ final class ParsedException implements \JsonSerializable
         );
     }
 
-    /**
-     * Returns true if the exception is recent (less than 60 minutes old)
-     */
-    public function isRecent(): bool
-    {
-        return $this->date->getTimestamp() > (time() - 60 * 60);
-    }
-
     public function jsonSerialize(): array
     {
         return [

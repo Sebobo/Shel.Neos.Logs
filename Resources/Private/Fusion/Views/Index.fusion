@@ -14,48 +14,9 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
     limit = ${limit}
 
     renderer = afx`
-        <style>
-            {'
-            .neos.neos-module h2 {
-                margin-bottom: 1rem;
-            }
-            .neos.neos-module table .column__excerpt {
-                max-width: calc(100vw - 700px);
-            }
-            .neos.neos-module table .column__excerpt div {
-                width: 100%;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                color: gray;
-            }
-            .neos.neos-module table td {
-                white-space: nowrap;
-            }
-            .neos.neos-module .neos-table a:hover {
-                text-decoration: underline;
-            }
-            .neos.neos-module table .column__actions {
-                width: 90px;
-            }
-            .neos.neos-module table .column__actions a {
-                margin-right: 1rem;
-            }
-            .neos.neos-module table .column__actions a:hover {
-                color: #00b5ff;
-            }
-            .neos.neos-module .pagination {
-                display: flex;
-                gap: 0.5rem;
-                margin: 0.5rem 0;
-            }
-            .page-selector {
-                display: inline-block;
-            }
-            '}
-        </style>
+        <Shel.Neos.Logs:Component.Style />
         <div id="shel-neos-logs-app">
-            <h2>Logs</h2>
+            <Shel.Neos.Logs:Component.SearchBox exceptions={props.exceptions} />
             <Shel.Neos.Logs:Component.LogList logs={props.logs} />
             <h2>Exceptions ({numberOfExceptions})</h2>
             <div class="pagination" @if.hasMultiplePages={numberOfPages > 1}>
