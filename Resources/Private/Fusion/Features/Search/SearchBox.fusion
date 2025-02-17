@@ -1,0 +1,31 @@
+prototype(Shel.Neos.Logs:Component.SearchBox) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        exceptions = ${PropTypes.arrayOf(PropTypes.instanceOf('Shel\Neos\Logs\Model\ParsedException'))}
+    }
+
+    exceptions = ${[]}
+
+    @private {
+        exceptionDetailsUriTemplate = Neos.Fusion:UriBuilder {
+            action = "showException"
+            arguments {
+                identifier = '__IDENTIFIER__'
+            }
+        }
+    }
+
+    renderer = afx`
+        <div class="search-box">
+            <input
+                id="logs-search-box"
+                type="search"
+                placeholder="Search in exceptions"
+                data-exceptions={Json.stringify(props.exceptions)}
+                data-exception-details-uri-template={private.exceptionDetailsUriTemplate}
+            />
+            <ol id="logs-search-results">
+                Search results
+            </ol>
+        </div>
+    `
+}

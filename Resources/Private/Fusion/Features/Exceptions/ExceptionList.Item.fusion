@@ -2,18 +2,25 @@ prototype(Shel.Neos.Logs:Component.ExceptionList.Item) < prototype(Neos.Fusion:C
     @propTypes {
         exception = ${PropTypes.instanceOf('Shel\Neos\Logs\Model\ParsedException')}
     }
+
     exception = null
+
+    @private {
+        recentExceptionsOffset = ${Configuration.setting('Shel.Neos.Logs.recentExceptionsOffset')}
+        isRecent = ${props.exception.date > Date.create(private.recentExceptionsOffset)}
+        cropped = ${String.length(props.exception.excerpt) > 120}
+    }
 
     renderer = afx`
         <tr style={'line-height: 1.3'}>
             <td>
-                {exception.recent ? '<i class="fas fa-exclamation-circle" title="Recent"></i>' : ''}
+                {private.isRecent ? '<i class="fas fa-exclamation-circle" title="Recent"></i>' : ''}
             </td>
             <td>
                 {Date.formatCldr(exception.date, 'yyyy / MM / dd - HH:mm')}
             </td>
             <td class="column__name">
-                <a title={'View ' + exception.identifier}>
+                <a title={'View ' + exception.identifier + ' in new tab'} target="_blank">
                     <Neos.Fusion:UriBuilder
                         @path="attributes.href"
                         action="showException"
@@ -23,9 +30,15 @@ prototype(Shel.Neos.Logs:Component.ExceptionList.Item) < prototype(Neos.Fusion:C
                 </a>
             </td>
             <td class="column__excerpt">
-                <div>
-                    <span title={exception.excerpt}>{exception.excerpt}</span>
-                </div>
+                <details name="exception_excerpt" @if={private.cropped}>
+                    <summary>{String.crop(exception.excerpt, 120, '…')}</summary>
+                    <div>
+                        {exception.excerpt}
+                    </div>
+                </details>
+                <span @if={!private.cropped}>
+                    {exception.excerpt}
+                </span>
             </td>
             <td class="column__actions">
                 <a title={'Download exception ' + exception.identifier}>

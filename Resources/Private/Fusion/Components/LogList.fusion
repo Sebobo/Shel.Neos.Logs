@@ -5,7 +5,7 @@ prototype(Shel.Neos.Logs:Component.LogList) < prototype(Neos.Fusion:Component) {
         <table class="neos-table">
             <thead>
             <tr>
-                <td>Filename</td>
+                <td>Logs</td>
                 <td>Actions</td>
             </tr>
             </thead>

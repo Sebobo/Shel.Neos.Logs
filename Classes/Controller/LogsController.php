@@ -82,6 +82,8 @@ class LogsController extends AbstractModuleController
             try {
                 // Check for new exceptions
                 $exceptionFiles = Files::readDirectoryRecursively($this->exceptionFilesUrl, self::EXCEPTION_FILE_EXTENSION);
+                // TODO: Refactor into separate method
+                // TODO: Group by excerpt hash or exception code
                 foreach ($exceptionFiles as $exceptionPathAndFilename) {
                     $identifier = basename($exceptionPathAndFilename, self::EXCEPTION_FILE_EXTENSION);
                     if (!array_key_exists($identifier, $exceptions)) {

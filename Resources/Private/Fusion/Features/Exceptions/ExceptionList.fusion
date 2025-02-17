@@ -2,6 +2,7 @@ prototype(Shel.Neos.Logs:Component.ExceptionList) < prototype(Neos.Fusion:Compon
     @propTypes {
         exceptions = ${PropTypes.arrayOf(PropTypes.instanceOf('Shel\Neos\Logs\Model\ParsedException'))}
     }
+
     exceptions = ${[]}
 
     renderer = afx`
