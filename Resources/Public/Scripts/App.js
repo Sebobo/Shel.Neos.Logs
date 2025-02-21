@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.debug('Shel.Neos.Logs: App.js loaded');
-
     if (!window.MiniSearch) {
         console.error('MiniSearch is not available. Exiting');
         return;
@@ -16,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function initializeSearch(searchInstance) {
         const exceptionDetailsUriTemplate = searchBox.dataset.exceptionDetailsUriTemplate;
+        searchBox.disabled = false;
 
         searchBox.addEventListener('input', (e) => {
             const { value } = e.target;
@@ -23,14 +22,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 return new Date(b.date) - new Date(a.date);
             });
 
-            console.debug('Searching for', value, results);
-
             resultsContainer.innerHTML = '';
 
             if (results.length === 0) {
                 resultsContainer.innerHTML = '<p>No results found</p>';
             } else {
                 results.forEach(result => {
+                    // Create a linked list item for each result
                     const resultElement = document.createElement('li');
                     const date = new Date(result.date);
                     const detailsUri = exceptionDetailsUriTemplate.replace('__IDENTIFIER__', result.identifier);
@@ -54,22 +52,27 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        console.debug('Exceptions found', exceptions);
-
+        // TODO: Also search in duplicates keys
         const searchInstance = new window.MiniSearch({
             idField: 'identifier',
-            fields: ['identifier', 'date', 'excerpt'],
+            fields: ['identifier', 'date', 'excerpt', 'duplicates'],
             storeFields: ['identifier', 'date', 'excerpt'],
             searchOptions: {
                 fuzzy: 0.2,
             }
         });
 
-        console.debug('Indexing exceptions');
         searchInstance
-        .addAllAsync(exceptions)
+        .addAllAsync(exceptions.map(({ identifier, date, excerpt, duplicates }) => {
+            return {
+                identifier: identifier,
+                date: date,
+                excerpt: excerpt,
+                duplicates: Object.keys(duplicates),
+            };
+        }))
         .then(() => {
-            console.debug('Indexing complete');
+            console.info(`Indexing of ${exceptions.length} items complete, search enabled.`);
             initializeSearch(searchInstance);
         });
     } catch (error) {

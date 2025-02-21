@@ -1,6 +1,6 @@
 prototype(Shel.Neos.Logs:Component.SearchBox) < prototype(Neos.Fusion:Component) {
     @propTypes {
-        exceptions = ${PropTypes.arrayOf(PropTypes.instanceOf('Shel\Neos\Logs\Model\ParsedException'))}
+        exceptions = ${PropTypes.arrayOf(PropTypes.instanceOf('Shel\Neos\Logs\Domain\ParsedException'))}
     }
 
     exceptions = ${[]}
@@ -19,12 +19,12 @@ prototype(Shel.Neos.Logs:Component.SearchBox) < prototype(Neos.Fusion:Component)
             <input
                 id="logs-search-box"
                 type="search"
+                disabled
                 placeholder="Search in exceptions"
                 data-exceptions={Json.stringify(props.exceptions)}
                 data-exception-details-uri-template={private.exceptionDetailsUriTemplate}
             />
             <ol id="logs-search-results">
-                Search results
             </ol>
         </div>
     `

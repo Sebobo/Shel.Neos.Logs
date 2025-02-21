@@ -1,6 +1,7 @@
 prototype(Shel.Neos.Logs:Component.ExceptionList.Item) < prototype(Neos.Fusion:Component) {
     @propTypes {
-        exception = ${PropTypes.instanceOf('Shel\Neos\Logs\Model\ParsedException')}
+        @strict = true
+        exception = ${PropTypes.instanceOf('Shel\Neos\Logs\Domain\ParsedException')}
     }
 
     exception = null
@@ -9,6 +10,7 @@ prototype(Shel.Neos.Logs:Component.ExceptionList.Item) < prototype(Neos.Fusion:C
         recentExceptionsOffset = ${Configuration.setting('Shel.Neos.Logs.recentExceptionsOffset')}
         isRecent = ${props.exception.date > Date.create(private.recentExceptionsOffset)}
         cropped = ${String.length(props.exception.excerpt) > 120}
+        numberOfDuplicates = ${Array.length(props.exception.duplicates)}
     }
 
     renderer = afx`
@@ -17,7 +19,7 @@ prototype(Shel.Neos.Logs:Component.ExceptionList.Item) < prototype(Neos.Fusion:C
                 {private.isRecent ? '<i class="fas fa-exclamation-circle" title="Recent"></i>' : ''}
             </td>
             <td>
-                {Date.formatCldr(exception.date, 'yyyy / MM / dd - HH:mm')}
+                {exception.date ? Date.formatCldr(exception.date, 'yyyy / MM / dd - HH:mm') : '-'}
             </td>
             <td class="column__name">
                 <a title={'View ' + exception.identifier + ' in new tab'} target="_blank">
@@ -28,13 +30,17 @@ prototype(Shel.Neos.Logs:Component.ExceptionList.Item) < prototype(Neos.Fusion:C
                     />
                     {exception.identifier}
                 </a>
+                {private.numberOfDuplicates ? ' (+' + private.numberOfDuplicates + ' duplicates)' : ''}
+            </td>
+            <td>
+                {exception.code || '–'}
             </td>
             <td class="column__excerpt">
                 <details name="exception_excerpt" @if={private.cropped}>
                     <summary>{String.crop(exception.excerpt, 120, '…')}</summary>
-                    <div>
+                    <pre>
                         {exception.excerpt}
-                    </div>
+                    </pre>
                 </details>
                 <span @if={!private.cropped}>
                     {exception.excerpt}

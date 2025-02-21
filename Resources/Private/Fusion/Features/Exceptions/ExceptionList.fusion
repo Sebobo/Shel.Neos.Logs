@@ -1,6 +1,6 @@
 prototype(Shel.Neos.Logs:Component.ExceptionList) < prototype(Neos.Fusion:Component) {
     @propTypes {
-        exceptions = ${PropTypes.arrayOf(PropTypes.instanceOf('Shel\Neos\Logs\Model\ParsedException'))}
+        exceptions = ${PropTypes.arrayOf(PropTypes.instanceOf('Shel\Neos\Logs\Domain\ParsedException'))}
     }
 
     exceptions = ${[]}
@@ -9,16 +9,17 @@ prototype(Shel.Neos.Logs:Component.ExceptionList) < prototype(Neos.Fusion:Compon
         <table class="neos-table">
             <thead>
                 <tr>
-                    <td></td>
-                    <td>Date</td>
-                    <td>Identifier</td>
-                    <td>Excerpt</td>
-                    <td>Actions</td>
+                    <th></th>
+                    <th>Date</th>
+                    <th>Identifier</th>
+                    <th>Code</th>
+                    <th>Excerpt</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
             <tr @if={!props.exceptions}>
-                <td colspan="4">
+                <td colspan="6">
                     <strong>No exceptions found</strong>
                 </td>
             </tr>
