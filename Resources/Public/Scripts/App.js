@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const resultsContainer = document.getElementById('logs-search-results');
 
     if (!searchBox) {
-        console.error('Search box not found. Exiting');
         return;
     }
 
@@ -45,7 +44,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     try {
-        const exceptions = JSON.parse(searchBox.dataset.exceptions);
+        const exceptionsDataElement = document.getElementById('exceptions-data');
+        if (!exceptionsDataElement) {
+            console.error('No exceptions data found. Exiting');
+            return;
+        }
+
+        const exceptions = JSON.parse(exceptionsDataElement.innerText);
 
         if (!exceptions || !Array.isArray(exceptions)) {
             console.error('No exceptions found. Exiting');

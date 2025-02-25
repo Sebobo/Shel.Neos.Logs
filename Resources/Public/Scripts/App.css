@@ -1,0 +1,220 @@
+
+#shel-neos-logs-app {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+#shel-neos-logs-app strong {
+  font-weight: bold;
+}
+
+.neos.neos-module table .column__excerpt {
+  max-width: calc(100vw - 700px);
+  color: var(--textSubtleLight);
+}
+
+.neos.neos-module table .column__excerpt span {
+  display: block;
+}
+
+.neos.neos-module table .column__excerpt span,
+.neos.neos-module table .column__excerpt summary {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.neos.neos-module table .column__excerpt pre {
+  width: 100%;
+  white-space: normal;
+  line-height: 1.4;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+.neos.neos-module table th,
+.neos.neos-module table td {
+  white-space: nowrap;
+  padding: 0 8px !important;
+}
+
+.neos.neos-module .neos-table a:hover {
+  text-decoration: underline;
+}
+
+.neos.neos-module table .column__actions {
+  width: 90px;
+}
+
+.neos.neos-module table .column__actions a {
+  margin-right: 1rem;
+}
+
+.neos.neos-module table .column__actions a:hover {
+  color: #00b5ff;
+}
+
+.neos.neos-module .pagination {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.page-selector {
+  display: inline-block;
+}
+
+/**
+ * Search styles
+ */
+.search-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  position: relative;
+}
+
+#logs-search-results {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 800px;
+  max-width: 90vw;
+  background-color: var(--colors-ContrastNeutral);
+  box-shadow: 0 3px 12px 10px rgba(0, 0, 0, 0.1);
+}
+
+#logs-search-results li {
+  padding: 0.8em;
+  border-bottom: 1px solid var(--grayLight);
+  border-left: 1px solid var(--grayLight);
+}
+
+#logs-search-results time {
+  color: var(--textSubtleLight);
+}
+
+#logs-search-results p {
+  margin-top: 0.5em;
+  display: block;
+  max-width: 100%;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+#logs-search-results a {
+  font-weight: bold;
+}
+
+#logs-search-results a:hover {
+  text-decoration: underline;
+}
+
+.exception-table {
+  tr {
+    line-height: 1.3
+  }
+}
+
+/**
+ * Styles for the exception details
+ */
+.exception-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.neos .exception-details pre {
+  max-width: 100%;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: #bbb;
+  border: 1px solid #333;
+  padding: 16px;
+}
+
+.neos .exception-details pre.excerpt {
+  color: #fff;
+}
+
+/**
+ * Styles for the logs table
+ */
+.neos.neos-module table.log-entry-table {
+  .table-body {
+    overflow: auto;
+    height: calc(100vh - 300px - 40px);
+    display: block;
+  }
+
+  .table-wrap {
+    overflow: hidden;
+    height: calc(100vh - 300px + 2px);
+    border: 1px solid #333;
+  }
+
+  .header-row {
+    position: relative;
+    display: block;
+    border-bottom: 1px solid #333;
+
+    th {
+      line-height: 2;
+    }
+  }
+
+  .column__date {
+    width: 160px;
+    white-space: nowrap;
+  }
+
+  .column__ip {
+    width: 120px;
+  }
+
+  .column__type {
+    width: 120px;
+  }
+
+  .column__details {
+    width: auto;
+    white-space: pre-line;
+  }
+
+  td {
+    line-height: 1.3em;
+    padding: 5px 16px;
+    vertical-align: top;
+  }
+
+  th:first-child,
+  td:first-child {
+    padding-left: 16px !important;
+  }
+}
+
+/**
+ * Scollbars
+ */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--grayLight);
+}
+
+::-webkit-scrollbar-corner {
+  background-color: var(--grayDark);
+}

@@ -12,8 +12,10 @@ Neos:
             privilegeTarget: 'Shel.Neos.Logs:Backend.Module.Administration.Logs'
             additionalResources:
               javaScripts:
-                minisearch: 'resource://Shel.Neos.Logs/Public/Scripts/minisearch.7.1.1.min.js'
-                app: 'resource://Shel.Neos.Logs/Public/Scripts/App.js'
+                'Shel.Neos.Logs.Minisearch': 'resource://Shel.Neos.Logs/Public/Scripts/minisearch.7.1.1.min.js'
+                'Shel.Neos.Logs.App': 'resource://Shel.Neos.Logs/Public/Scripts/App.js'
+              styleSheets:
+                'Shel.Neos.Logs.App': 'resource://Shel.Neos.Logs/Public/Scripts/App.css'
 
     userInterface:
       translation:

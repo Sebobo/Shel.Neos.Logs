@@ -19,11 +19,11 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
     exceptionsPage = ${exceptionsPage}
 
     renderer = afx`
-        <Shel.Neos.Logs:Component.Style />
         <div id="shel-neos-logs-app">
-            <Shel.Neos.Logs:Component.SearchBox exceptions={props.exceptions} />
             <Shel.Neos.Logs:Component.LogList logs={props.logs} />
+
             <h2>Exceptions ({numberOfExceptions})</h2>
+            <Shel.Neos.Logs:Component.SearchBox exceptions={props.exceptions} />
             <div class="pagination" @if.hasMultiplePages={props.numberOfPages > 1}>
                 <Neos.Fusion:Link.Action
                     class="neos-button"
@@ -70,7 +70,6 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
                     </select>
                 </form>
             </div>
-
             <Shel.Neos.Logs:Component.ExceptionList exceptions={props.exceptions} />
         </div>
         <Shel.Neos.Logs:Component.FlashMessages flashMessages={props.flashMessages} />

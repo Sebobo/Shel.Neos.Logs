@@ -14,7 +14,7 @@ prototype(Shel.Neos.Logs:Component.ExceptionList.Item) < prototype(Neos.Fusion:C
     }
 
     renderer = afx`
-        <tr style={'line-height: 1.3'}>
+        <tr>
             <td>
                 {private.isRecent ? '<i class="fas fa-exclamation-circle" title="Recent"></i>' : ''}
             </td>

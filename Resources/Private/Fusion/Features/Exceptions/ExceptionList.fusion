@@ -6,7 +6,7 @@ prototype(Shel.Neos.Logs:Component.ExceptionList) < prototype(Neos.Fusion:Compon
     exceptions = ${[]}
 
     renderer = afx`
-        <table class="neos-table">
+        <table class="neos-table exception-table">
             <thead>
                 <tr>
                     <th></th>

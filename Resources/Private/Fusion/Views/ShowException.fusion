@@ -5,28 +5,6 @@ prototype(Shel.Neos.Logs:View.ShowException) < prototype(Neos.Fusion:Component) 
     error = ${error}
 
     renderer = afx`
-        <style>
-            {'
-            .exception-details {
-                display: flex;
-                flex-direction: column;
-                gap: 1em;
-            }
-            .neos pre {
-                max-width: 100%;
-                white-space: pre-wrap;
-                line-height: 1.6;
-                color: #bbb;
-                border: 1px solid #333;
-                padding: 16px;
-            }
-            .neos pre.excerpt {
-                color: #fff;
-            }
-            .neos pre.stacktrace {
-            }
-            '}
-        </style>
         <div class="neos-content neos-container-fluid">
             <div class="neos-row-fluid exception-details">
                 <h2>Exception {props.filename}</h2>

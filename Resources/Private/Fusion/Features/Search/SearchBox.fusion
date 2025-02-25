@@ -16,12 +16,12 @@ prototype(Shel.Neos.Logs:Component.SearchBox) < prototype(Neos.Fusion:Component)
 
     renderer = afx`
         <div class="search-box">
+            <script type="application/json" id="exceptions-data">{Json.stringify(props.exceptions)}</script>
             <input
                 id="logs-search-box"
                 type="search"
                 disabled
                 placeholder="Search in exceptions"
-                data-exceptions={Json.stringify(props.exceptions)}
                 data-exception-details-uri-template={private.exceptionDetailsUriTemplate}
             />
             <ol id="logs-search-results">
