@@ -3,7 +3,7 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
     entries = ${entries}
     level = ${level}
     levels = ${levels}
-    csrfToken = ${csrfToken}
+    csrfToken = ${Security.csrfToken()}
     lineCount = ${lineCount}
     limit = ${limit}
 

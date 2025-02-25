@@ -9,42 +9,29 @@ namespace Shel\Neos\Logs\Controller;
  * (c) by Sebastian Helzle
  */
 
-use Neos\Cache\Frontend\VariableFrontend;
 use Neos\Error\Messages\Message;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Mvc\View\JsonView;
 use Neos\Flow\Security\Context as SecurityContext;
-use Neos\Flow\Utility\Now;
 use Neos\Fusion\View\FusionView;
 use Neos\Neos\Controller\Module\AbstractModuleController;
 use Neos\Utility\Files;
-use Shel\Neos\Logs\Domain\ParsedException;
-use Shel\Neos\Logs\ParseException;
+use Shel\Neos\Logs\Service\LogsService;
 
 #[Flow\Scope('singleton')]
 class LogsController extends AbstractModuleController
 {
-    protected const EXCEPTION_FILE_EXTENSION = '.txt';
 
     /**
      * @var array
      */
     protected $supportedMediaTypes = ['application/json', 'text/html'];
 
-    #[Flow\InjectConfiguration('logFilesUrl', 'Shel.Neos.Logs')]
-    protected string $logFilesUrl;
-
-    #[Flow\InjectConfiguration('exceptionFilesUrl', 'Shel.Neos.Logs')]
-    protected string $exceptionFilesUrl;
-
     #[Flow\InjectConfiguration('pagination.exceptions.pageSize', 'Shel.Neos.Logs')]
     protected int $exceptionsPageSize;
 
-    /**
-     * @var VariableFrontend
-     */
     #[Flow\Inject]
-    protected $loggerCache;
+    protected LogsService $logsService;
 
     #[Flow\Inject]
     protected SecurityContext $securityContext;
@@ -62,67 +49,14 @@ class LogsController extends AbstractModuleController
      */
     public function indexAction(int $exceptionsPage = 0): void
     {
-        // Retrieve all log files (there shouldn't be more than 10 in 99% of projects)
+        $logFiles = [];
+        $deduplicatedExceptions = [];
         try {
-            $logFiles = array_map(static function (string $logFile) {
-                $filename = basename($logFile);
-                return [
-                    'name' => basename($logFile),
-                    'identifier' => $filename,
-                ];
-            }, Files::readDirectoryRecursively($this->logFilesUrl, '.log'));
+            $logFiles = $this->logsService->getLogFiles();
+            $deduplicatedExceptions = $this->logsService->getExceptions();
         } catch (\Exception $e) {
             $this->addFlashMessage($e->getMessage(), 'Logfiles could not be read', Message::SEVERITY_ERROR);
-            $logFiles = [];
         }
-
-        /** @var array<string, ParsedException> $exceptions */
-        $exceptions = $this->loggerCache->getByTag('exception');
-
-        if (is_dir($this->exceptionFilesUrl)) {
-            try {
-                // Check for new exceptions
-                $exceptionFiles = Files::readDirectoryRecursively($this->exceptionFilesUrl, self::EXCEPTION_FILE_EXTENSION);
-                // TODO: Group by excerpt hash or exception code
-                foreach ($exceptionFiles as $exceptionPathAndFilename) {
-                    $identifier = basename($exceptionPathAndFilename, self::EXCEPTION_FILE_EXTENSION);
-                    if (!array_key_exists($identifier, $exceptions)) {
-                        $exceptions[$identifier] = $exceptionDto = self::parseException($identifier, $exceptionPathAndFilename);
-                        $this->loggerCache->set($identifier, $exceptionDto, ['exception']);
-                    }
-                }
-            } catch (ParseException $e) {
-                $this->addFlashMessage($e->getMessage(), 'Exception files could not be parsed', Message::SEVERITY_ERROR);
-            } catch (\Exception $e) {
-                $this->addFlashMessage($e->getMessage(), 'An error occurred while parsing an exception', Message::SEVERITY_ERROR);
-            }
-        }
-
-        // Merge exceptions with the same code
-        $exceptionsByCode = [];
-        foreach ($exceptions as $exception) {
-            $hashOrCode = 'CODE_' . ($exception->code ?: md5($exception->excerpt));
-            $exceptionsByCode[$hashOrCode][] = $exception;
-        }
-
-        $deduplicatedExceptions = [];
-        foreach ($exceptionsByCode as $exceptionGroup) {
-            // Add exceptions without a code or with a unique code
-            if (count($exceptionGroup) <= 1) {
-                array_push($deduplicatedExceptions, ...$exceptionGroup);
-                continue;
-            }
-            // Merge the whole group into one exception
-            $firstInstance = array_shift($exceptionGroup);
-            $deduplicatedException = array_reduce($exceptionGroup, static function (ParsedException $firstInstance, ParsedException $exception) {
-                $firstInstance->addDuplicate($exception);
-                return $firstInstance;
-            }, $firstInstance);
-            $deduplicatedExceptions[] = $deduplicatedException;
-        }
-
-        // Sort exception by date with the newest first
-        usort($deduplicatedExceptions, 'self::compareExceptions');
 
         $numberOfPages = (int)ceil(count($deduplicatedExceptions) / $this->exceptionsPageSize);
         $exceptionsPage = (int)min($exceptionsPage, $numberOfPages - 1);
@@ -146,41 +80,6 @@ class LogsController extends AbstractModuleController
         ]);
     }
 
-    /**
-     * @throws ParseException
-     */
-    protected static function parseException(string $identifier, string $exceptionPathAndFilename): ParsedException
-    {
-        $date = \DateTime::createFromFormat('YmdHi', substr($identifier, 0, 12));
-        if (!$date) {
-            throw new ParseException('Could not parse date from identifier ' . $identifier);
-        }
-
-        $fileContent = Files::getFileContents($exceptionPathAndFilename);
-
-        // Extract the exception code from the file content
-        preg_match('/Exception #(\d+)/', $fileContent, $matches);
-
-        return ParsedException::fromArray([
-            'identifier' => $identifier,
-            'code' => $matches[1] ?? '',
-            'date' => $date,
-            'parsedDate' => new Now(),
-            'excerpt' => self::getExcerptFromException($fileContent),
-        ]);
-    }
-
-    protected static function compareExceptions(ParsedException $a, ParsedException $b): int
-    {
-        return $b->date <=> $a->date;
-    }
-
-    protected static function getExcerptFromException(string $content): string
-    {
-        preg_match('/^(?s)(.*?)(?:\R{2,}|$)/', strip_tags($content), $excerpt);
-        return str_replace([FLOW_PATH_ROOT, "\n"], ['…/', ''], $excerpt[0] ?? '');
-    }
-
     public function showLogfileAction(): void
     {
         ['filename' => $filename] = $this->request->getArguments();
@@ -191,10 +90,8 @@ class LogsController extends AbstractModuleController
         $level = $this->request->hasArgument('level') ? $this->request->getArgument('level') : '';
         $limit = $this->request->hasArgument('limit') ? $this->request->getArgument('limit') : 50;
 
-        $filepath = self::getFilepath($this->logFilesUrl, $filename);
-        if ($filename && self::isFilenameValid($this->logFilesUrl, $filepath)) {
-            $fileContent = Files::getFileContents($filepath);
-
+        $fileContent = $this->logsService->getLogFileContents($filename);
+        if ($fileContent) {
             $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)(\s+[:.\d]+)?\s+(\w+)\s+(.+)/', $fileContent, $lines);
 
             for ($i = 0; $i <= 5; $i++) {
@@ -222,7 +119,6 @@ class LogsController extends AbstractModuleController
         }
 
         $this->view->assignMultiple([
-            'csrfToken' => $this->securityContext->getCsrfProtectionToken(),
             'filename' => $filename,
             'entries' => $entries,
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
@@ -240,13 +136,12 @@ class LogsController extends AbstractModuleController
     {
         ['filename' => $filename] = $this->request->getArguments();
 
-        $filepath = self::getFilepath($this->logFilesUrl, $filename);
-        if ($filename && self::isFilenameValid($this->logFilesUrl, $filepath)) {
+        $filepath = $this->logsService->getValidLogFilepath($filename);
+        if ($filepath) {
             $this->startFileDownload($filepath, $filename);
         } else {
             $this->addFlashMessage(sprintf('Logfile %s not found', $filename), Message::SEVERITY_ERROR);
         }
-
         $this->redirect('index');
     }
 
@@ -256,15 +151,16 @@ class LogsController extends AbstractModuleController
     public function showExceptionAction(): void
     {
         ['identifier' => $identifier] = $this->request->getArguments();
-        $filepath = self::getFilepath($this->exceptionFilesUrl, $identifier . self::EXCEPTION_FILE_EXTENSION);
-        $error = false;
-        $fileContent = '';
 
-        if ($identifier && self::isFilenameValid($this->exceptionFilesUrl, $filepath)) {
+        $filepath = $this->logsService->getValidExceptionFilepath($identifier);
+        $error = false;
+
+        if ($filepath) {
             $fileContent = Files::getFileContents($filepath);
         } else {
             $this->addFlashMessage(sprintf('Exception %s not found', $identifier), Message::SEVERITY_ERROR);
             $error = 'Error: Exception not found';
+            $fileContent = '';
         }
 
         $this->view->assignMultiple([
@@ -272,25 +168,8 @@ class LogsController extends AbstractModuleController
             'content' => htmlspecialchars($fileContent),
             'error' => $error,
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
-            ...$this->extractExcerptAndTraceFromException($fileContent),
+            ...$this->logsService->extractExcerptAndTraceFromException($fileContent),
         ]);
-    }
-
-    protected static function getFilepath(string $folderPath, string $filename): string
-    {
-        $path = realpath($folderPath . '/' . $filename);
-        if ($path === false) {
-            $path = '';
-        }
-        return $path;
-    }
-
-    protected static function isFilenameValid(string $folderPath, string $filepath): bool
-    {
-        if (!$filepath) {
-            return false;
-        }
-        return file_exists($filepath) && str_contains($filepath, realpath($folderPath));
     }
 
     /**
@@ -300,18 +179,16 @@ class LogsController extends AbstractModuleController
     {
         ['identifier' => $identifier] = $this->request->getArguments();
 
-        $filepath = self::getFilepath($this->exceptionFilesUrl, $identifier . self::EXCEPTION_FILE_EXTENSION);
-        if ($identifier && self::isFilenameValid($this->exceptionFilesUrl, $filepath)) {
-            if (Files::unlink($filepath)) {
-                $this->addFlashMessage(sprintf('Exception %s deleted', $identifier));
-            } else {
-                $this->addFlashMessage(sprintf('Exception %s could not be deleted', $identifier),
-                    Message::SEVERITY_ERROR);
-            }
-        } else {
+        $filepath = $this->logsService->getValidExceptionFilepath($identifier);
+        if (!$filepath) {
             $this->addFlashMessage(sprintf('Exception %s not found', $identifier), Message::SEVERITY_ERROR);
+        } elseif (!Files::unlink($filepath)) {
+            $this->addFlashMessage(
+                sprintf('Exception %s could not be deleted', $identifier),
+                Message::SEVERITY_ERROR
+            );
         }
-
+        $this->addFlashMessage(sprintf('Exception %s deleted', $identifier));
         $this->redirect('index');
     }
 
@@ -322,13 +199,12 @@ class LogsController extends AbstractModuleController
     {
         ['identifier' => $identifier] = $this->request->getArguments();
 
-        $filepath = self::getFilepath($this->exceptionFilesUrl, $identifier . self::EXCEPTION_FILE_EXTENSION);
-        if ($identifier && self::isFilenameValid($this->exceptionFilesUrl, $filepath)) {
+        $filepath = $this->logsService->getValidExceptionFilepath($identifier);
+        if ($filepath) {
             $this->startFileDownload($filepath, $identifier);
         } else {
             $this->addFlashMessage(sprintf('Exception %s not found', $identifier), Message::SEVERITY_ERROR);
         }
-
         $this->redirect('index');
     }
 
@@ -341,28 +217,10 @@ class LogsController extends AbstractModuleController
         header('Pragma: no-cache');
         header('Content-type: application/text');
         header('Content-Length: ' . strlen($content));
-        header('Content-Disposition: attachment; filename=' . $identifier . self::EXCEPTION_FILE_EXTENSION);
+        header('Content-Disposition: attachment; filename=' . $identifier . LogsService::EXCEPTION_FILE_EXTENSION);
         header('Content-Transfer-Encoding: binary');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-
         echo $content;
-
         exit;
-    }
-
-    /**
-     * @return array{excerpt: string, stacktrace: string}
-     */
-    protected function extractExcerptAndTraceFromException(string $fileContent): array
-    {
-        $content = htmlspecialchars($fileContent, ENT_QUOTES | ENT_HTML5);
-        preg_match('/^(?s)(.*?)(?:\R{2,}|$)(.*)/', $content, $matches);
-        $excerpt = str_replace(FLOW_PATH_ROOT, '…/', $matches[1] ?? '');;
-        $stacktrace = str_replace(FLOW_PATH_ROOT, '…/', $matches[2] ?? '');
-
-        return [
-            'excerpt' => $excerpt,
-            'stacktrace' => $stacktrace,
-        ];
     }
 }

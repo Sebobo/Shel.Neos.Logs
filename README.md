@@ -14,6 +14,22 @@ but there are cases in which those tools cannot be used.
 This package was built to help in situations where one has to quickly investigate something, 
 e.g. to understand an error the client had with their site.
 
+## Features
+
+* Backend module
+  * View all logfiles in the `Data/Logs` directory
+    * Filter log lines by their level
+    * Download logfiles
+  * View all exception files in the `Data/Logs/Exceptions` directory
+    * Shows shortened excerpt for each exception 
+    * Groups exceptions by their code or message to reduce clutter
+    * Download exception files
+    * Search for exceptions by code or their message
+    * Mark recent exceptions
+* CLI
+  * List all exceptions as table
+  * Show details of an exception
+
 ## Installation
 
 Run this in your site package:
@@ -29,15 +45,42 @@ that will allow you to view all local log and exception files.
 
 Lines in the logfiles can be filtered by their level. You can also change the number of lines that should be visible.
 
+### CLI
+
+You can also use the CLI commands to list all exceptions or show details of a specific exception.
+
+To list all exceptions:
+
+```console
+./flow logs:exceptions
+```
+
+To show details of a specific exception:
+
+```console
+./flow logs:showexceptions <exceptionId>
+```
+
+`<exceptionId>` is the filename of the exception file without the `.txt` extension.
+If you don't provide an id, the command will list all exceptions, and you can choose one to show details.
+
 ## Examples
 
 Overview screen:
 
 ![Overview](Documentation/overview.jpg)
 
-Viewing a logfile
+Viewing a logfile:
 
 ![Logfile](Documentation/logfile.jpg)
+
+Search in exceptions:
+
+![Search exceptions](Documentation/search_exceptions.jpg)
+
+Exceptions in CLI:
+
+![CLI exceptions](Documentation/cli_exceptions.jpg)
 
 ## Contributions
 

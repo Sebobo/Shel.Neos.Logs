@@ -1,4 +1,4 @@
-Shel\Neos\Logs\Controller\LogsController:
+Shel\Neos\Logs\Service\LogsService:
   properties:
     loggerCache:
       object:

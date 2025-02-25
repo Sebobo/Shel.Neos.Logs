@@ -10,6 +10,7 @@ namespace Shel\Neos\Logs\Domain;
  */
 
 use Neos\Flow\Annotations as Flow;
+use Neos\Utility\Unicode\Functions as UnicodeFunctions;
 
 #[Flow\Proxy(false)]
 final class ParsedException implements \JsonSerializable
@@ -52,7 +53,7 @@ final class ParsedException implements \JsonSerializable
         return $this->duplicates;
     }
 
-    public function jsonSerialize(): array
+    public function toArray(): array
     {
         return [
             'identifier' => $this->identifier,
@@ -69,5 +70,17 @@ final class ParsedException implements \JsonSerializable
                 []
             ),
         ];
+    }
+
+    public function getCroppedExcerpt(int $length = 100): string
+    {
+        return UnicodeFunctions::strlen($this->excerpt) > $length ?
+            UnicodeFunctions::substr($this->excerpt, 0, $length) . '…' :
+            $this->excerpt;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 }
