@@ -28,10 +28,10 @@ class LogsService
     protected $loggerCache;
 
     #[Flow\InjectConfiguration('logFilesUrl', 'Shel.Neos.Logs')]
-    protected string $logFilesUrl;
+    protected ?string $logFilesUrl;
 
     #[Flow\InjectConfiguration('exceptionFilesUrl', 'Shel.Neos.Logs')]
-    protected string $exceptionFilesUrl;
+    protected ?string $exceptionFilesUrl;
 
     /**
      * TODO: Introduce DTO for log files
