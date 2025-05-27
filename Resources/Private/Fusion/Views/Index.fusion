@@ -1,68 +1,43 @@
 prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = true
+        // TODO: Define shape
+        logs = ${PropTypes.arrayOf(PropTypes.dataStructure({}))}
+        exceptions = ${PropTypes.arrayOf(PropTypes.instanceOf('Shel\Neos\Logs\Domain\ParsedException'))}
+        // TODO: Define shape
+        flashMessages = ${PropTypes.arrayOf(PropTypes.dataStructure({}))}
+        numberOfPages = ${PropTypes.integer}
+        numberOfExceptions = ${PropTypes.integer}
+        exceptionsPage = ${PropTypes.integer}
+    }
+
     logs = ${logs}
     exceptions = ${exceptions}
     flashMessages = ${flashMessages}
-    limit = ${limit}
+    numberOfPages = ${numberOfPages}
+    numberOfExceptions = ${numberOfExceptions}
+    exceptionsPage = ${exceptionsPage}
 
     renderer = afx`
-        <style>
-            {'
-            .neos.neos-module h2 {
-                margin-bottom: 1rem;
-            }
-            .neos.neos-module table .column__excerpt {
-                max-width: calc(100vw - 700px);
-            }
-            .neos.neos-module table .column__excerpt div {
-                width: 100%;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                color: gray;
-            }
-            .neos.neos-module table td {
-                white-space: nowrap;
-            }
-            .neos.neos-module .neos-table a:hover {
-                text-decoration: underline;
-            }
-            .neos.neos-module table .column__actions {
-                width: 90px;
-            }
-            .neos.neos-module table .column__actions a {
-                margin-right: 1rem;
-            }
-            .neos.neos-module table .column__actions a:hover {
-                color: #00b5ff;
-            }
-            .neos.neos-module .pagination {
-                display: flex;
-                gap: 0.5rem;
-                margin: 0.5rem 0;
-            }
-            .page-selector {
-                display: inline-block;
-            }
-            '}
-        </style>
         <div id="shel-neos-logs-app">
-            <h2>Logs</h2>
             <Shel.Neos.Logs:Component.LogList logs={props.logs} />
+
             <h2>Exceptions ({numberOfExceptions})</h2>
-            <div class="pagination" @if.hasMultiplePages={numberOfPages > 1}>
+            <Shel.Neos.Logs:Component.SearchBox exceptions={props.exceptions} />
+            <div class="pagination" @if.hasMultiplePages={props.numberOfPages > 1}>
                 <Neos.Fusion:Link.Action
                     class="neos-button"
                     href.action="index"
                     href.arguments.exceptionsPage={0}
-                    @if.notFirst={exceptionsPage != 0}
+                    @if.notFirst={props.exceptionsPage != 0}
                 >
                     First
                 </Neos.Fusion:Link.Action>
                 <Neos.Fusion:Link.Action
-                    @if.notFirst={exceptionsPage != 0}
+                    @if.notFirst={props.exceptionsPage != 0}
                     class="neos-button"
                     href.action="index"
-                    href.arguments.exceptionsPage={exceptionsPage - 1}
+                    href.arguments.exceptionsPage={props.exceptionsPage - 1}
                 >
                     &lt;
                 </Neos.Fusion:Link.Action>
@@ -70,32 +45,31 @@ prototype(Shel.Neos.Logs:View.Index) < prototype(Neos.Fusion:Component) {
                     Page {exceptionsPage + 1}
                 </span>
                 <Neos.Fusion:Link.Action
-                    @if.notLast={exceptionsPage < numberOfPages - 1}
+                    @if.notLast={props.exceptionsPage < props.numberOfPages - 1}
                     class="neos-button" href.action="index"
-                    href.arguments.exceptionsPage={exceptionsPage + 1}
+                    href.arguments.exceptionsPage={props.exceptionsPage + 1}
                 >
                     &gt;
                 </Neos.Fusion:Link.Action>
                 <Neos.Fusion:Link.Action
                     class="neos-button"
                     href.action="index"
-                    href.arguments.exceptionsPage={numberOfPages - 1}
-                    @if.notLast={exceptionsPage < numberOfPages - 1}
+                    href.arguments.exceptionsPage={props.numberOfPages - 1}
+                    @if.notLast={props.exceptionsPage < props.numberOfPages - 1}
                 >
                     Last
                 </Neos.Fusion:Link.Action>
-                <form method="post" class="page-selector" @if.hasMorePages={numberOfPages > 2}>
+                <form method="post" class="page-selector" @if.hasMorePages={props.numberOfPages > 2}>
                     <Neos.Fusion:UriBuilder action="index" @path="attributes.action" />
                     <input type="hidden" name="__csrfToken" value={Security.csrfToken()}/>
                     <select name="moduleArguments[exceptionsPage]" onchange="this.form.submit();" style="margin-left:1rem;">
                         <option value="">Select page</option>
-                        <Neos.Fusion:Loop items={Array.range(0, numberOfPages - 1)}>
+                        <Neos.Fusion:Loop items={Array.range(0, props.numberOfPages - 1)}>
                             <option value={item}>Go to page {item+1}</option>
                         </Neos.Fusion:Loop>
                     </select>
                 </form>
             </div>
-
             <Shel.Neos.Logs:Component.ExceptionList exceptions={props.exceptions} />
         </div>
         <Shel.Neos.Logs:Component.FlashMessages flashMessages={props.flashMessages} />

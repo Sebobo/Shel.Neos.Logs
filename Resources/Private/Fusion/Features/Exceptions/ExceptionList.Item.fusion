@@ -1,0 +1,69 @@
+prototype(Shel.Neos.Logs:Component.ExceptionList.Item) < prototype(Neos.Fusion:Component) {
+    @propTypes {
+        @strict = true
+        exception = ${PropTypes.instanceOf('Shel\Neos\Logs\Domain\ParsedException')}
+    }
+
+    exception = null
+
+    @private {
+        recentExceptionsOffset = ${Configuration.setting('Shel.Neos.Logs.recentExceptionsOffset')}
+        isRecent = ${props.exception.date > Date.create(private.recentExceptionsOffset)}
+        cropped = ${String.length(props.exception.excerpt) > 120}
+        numberOfDuplicates = ${Array.length(props.exception.duplicates)}
+    }
+
+    renderer = afx`
+        <tr>
+            <td>
+                {private.isRecent ? '<i class="fas fa-exclamation-circle" title="Recent"></i>' : ''}
+            </td>
+            <td>
+                {exception.date ? Date.formatCldr(exception.date, 'yyyy / MM / dd - HH:mm') : '-'}
+            </td>
+            <td class="column__name">
+                <a title={'View ' + exception.identifier + ' in new tab'} target="_blank">
+                    <Neos.Fusion:UriBuilder
+                        @path="attributes.href"
+                        action="showException"
+                        arguments={{'identifier': exception.identifier}}
+                    />
+                    {exception.identifier}
+                </a>
+                {private.numberOfDuplicates ? ' (+' + private.numberOfDuplicates + ' duplicates)' : ''}
+            </td>
+            <td>
+                {exception.code || '–'}
+            </td>
+            <td class="column__excerpt">
+                <details name="exception_excerpt" @if={private.cropped}>
+                    <summary>{String.crop(exception.excerpt, 120, '…')}</summary>
+                    <pre>
+                        {exception.excerpt}
+                    </pre>
+                </details>
+                <span @if={!private.cropped}>
+                    {exception.excerpt}
+                </span>
+            </td>
+            <td class="column__actions">
+                <a title={'Download exception ' + exception.identifier}>
+                    <Neos.Fusion:UriBuilder
+                        @path="attributes.href"
+                        action="downloadException"
+                        arguments={{'identifier': exception.identifier}}
+                    />
+                    <i class="fas fa-download"></i>
+                </a>
+                <a title={'Delete exception ' + exception.identifier}>
+                    <Neos.Fusion:UriBuilder
+                        @path="attributes.href"
+                        action="deleteException"
+                        arguments={{'identifier': exception.identifier}}
+                    />
+                    <i class="fas fa-trash"></i>
+                </a>
+            </td>
+        </tr>
+    `
+}

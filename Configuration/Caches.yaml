@@ -1,0 +1,5 @@
+Shel_Neos_Logs_Cache:
+  backend: Neos\Cache\Backend\FileBackend
+  frontend: Neos\Cache\Frontend\VariableFrontend
+  backendOptions:
+    defaultLifetime: 3600

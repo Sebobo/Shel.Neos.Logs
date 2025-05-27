@@ -10,6 +10,12 @@ Neos:
             mainStylesheet: 'Lite'
             icon: fas fa-search
             privilegeTarget: 'Shel.Neos.Logs:Backend.Module.Administration.Logs'
+            additionalResources:
+              javaScripts:
+                'Shel.Neos.Logs.Minisearch': 'resource://Shel.Neos.Logs/Public/Scripts/minisearch.7.1.1.min.js'
+                'Shel.Neos.Logs.App': 'resource://Shel.Neos.Logs/Public/Scripts/App.js'
+              styleSheets:
+                'Shel.Neos.Logs.App': 'resource://Shel.Neos.Logs/Public/Scripts/App.css'
 
     userInterface:
       translation:
@@ -27,3 +33,5 @@ Shel:
           pageSize: 50
       logFilesUrl: '%FLOW_PATH_DATA%Logs'
       exceptionFilesUrl: '%FLOW_PATH_DATA%Logs/Exceptions'
+      # Offset in seconds to mark exceptions as recent
+      recentExceptionsOffset: '-1 hours'

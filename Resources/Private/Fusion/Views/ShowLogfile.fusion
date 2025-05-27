@@ -3,7 +3,7 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
     entries = ${entries}
     level = ${level}
     levels = ${levels}
-    csrfToken = ${csrfToken}
+    csrfToken = ${Security.csrfToken()}
     lineCount = ${lineCount}
     limit = ${limit}
 
@@ -19,51 +19,6 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
     }
 
     renderer = afx`
-        <style>
-            {'
-                .neos .table-wrap {
-                    overflow: hidden;
-                    height: calc(100vh - 300px + 2px);
-                    border: 1px solid #333;
-                }
-                .neos .header-row {
-                    position: relative;
-                    display: block;
-                    border-bottom: 1px solid #333;
-                }
-                .neos .header-row th {
-                    line-height: 2;
-                }
-                .neos.neos-module table th:first-child,
-                .neos.neos-module table td:first-child {
-                    padding-left: 16px !important;
-                }
-                .neos.neos-module table .column__date {
-                    width: 160px;
-                    white-space: nowrap;
-                }
-                .neos.neos-module table .column__ip {
-                    width: 120px;
-                }
-                .neos.neos-module table .column__type {
-                    width: 120px;
-                }
-                .neos.neos-module table .column__details {
-                    width: auto;
-                    white-space: pre-line;
-                }
-                .neos.neos-module .table-body {
-                    overflow: auto;
-                    height: calc(100vh - 300px - 40px);
-                    display: block;
-                }
-                .neos.neos-module table td {
-                    line-height: 1.3em;
-                    padding: 5px 16px;
-                    vertical-align: top;
-                }
-            '}
-        </style>
         <div class="neos-content neos-container-fluid">
             <div class="neos-row-fluid">
                 <h2>Log file {props.filename}</h2>
@@ -90,7 +45,7 @@ prototype(Shel.Neos.Logs:View.ShowLogfile) < prototype(Neos.Fusion:Component) {
                 </form>
                 <br/>
                 <div class="table-wrap" @if.hasEntries={props.entries}>
-                    <table>
+                    <table class="log-entry-table">
                         <thead>
                             <tr class="header-row">
                                 <th class="column__date">Date</th>
