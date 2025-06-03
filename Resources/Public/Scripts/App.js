@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
             resultsContainer.innerHTML = '';
 
             if (results.length === 0) {
-                resultsContainer.innerHTML = '<p>No results found</p>';
+                resultsContainer.innerHTML = '<li>No results found</li>';
             } else {
                 results.forEach(result => {
                     // Create a linked list item for each result
