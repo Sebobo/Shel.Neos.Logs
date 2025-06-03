@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fields: ['identifier', 'date', 'excerpt', 'duplicates'],
             storeFields: ['identifier', 'date', 'excerpt'],
             searchOptions: {
+                prefix: true,
                 fuzzy: 0.2,
             }
         });
