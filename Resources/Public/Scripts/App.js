@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     if (!window.MiniSearch) {
         console.error('MiniSearch is not available. Exiting');
         return;
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         searchBox.addEventListener('input', (e) => {
             const { value } = e.target;
-            const results = searchInstance.search(value, { }).sort((a, b) => {
+            const results = searchInstance.search(value, {}).sort((a, b) => {
                 return new Date(b.date) - new Date(a.date);
             });
 
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (results.length === 0) {
                 resultsContainer.innerHTML = '<li>No results found</li>';
             } else {
-                results.forEach(result => {
+                results.forEach((result) => {
                     // Create a linked list item for each result
                     const resultElement = document.createElement('li');
                     const date = new Date(result.date);
@@ -65,22 +65,24 @@ document.addEventListener('DOMContentLoaded', function() {
             searchOptions: {
                 prefix: true,
                 fuzzy: 0.2,
-            }
+            },
         });
 
         searchInstance
-        .addAllAsync(exceptions.map(({ identifier, date, excerpt, duplicates }) => {
-            return {
-                identifier: identifier,
-                date: date,
-                excerpt: excerpt,
-                duplicates: Object.keys(duplicates),
-            };
-        }))
-        .then(() => {
-            console.info(`Indexing of ${exceptions.length} items complete, search enabled.`);
-            initializeSearch(searchInstance);
-        });
+            .addAllAsync(
+                exceptions.map(({ identifier, date, excerpt, duplicates }) => {
+                    return {
+                        identifier: identifier,
+                        date: date,
+                        excerpt: excerpt,
+                        duplicates: Object.keys(duplicates),
+                    };
+                })
+            )
+            .then(() => {
+                console.info(`Indexing of ${exceptions.length} items complete, search enabled.`);
+                initializeSearch(searchInstance);
+            });
     } catch (error) {
         console.error('Error parsing exceptions', error);
     }
