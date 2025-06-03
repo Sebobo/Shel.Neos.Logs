@@ -41,6 +41,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
         });
+
+        // Show results container when the search box is focused
+        searchBox.addEventListener('focusin', () => {
+            resultsContainer.classList.add('visible');
+        });
+
+        // Hide results container when focus is lost
+        document.addEventListener('focusout', (e) => {
+            // Check if the focus is outside the search box and results container
+            if (!searchBox.contains(e.relatedTarget) && !resultsContainer.contains(e.relatedTarget)) {
+                resultsContainer.classList.remove('visible');
+            }
+        });
     }
 
     try {

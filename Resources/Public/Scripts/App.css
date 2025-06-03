@@ -78,15 +78,19 @@
 }
 
 #logs-search-results {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 800px;
-  max-width: 90vw;
-  background-color: var(--colors-ContrastNeutral);
-  box-shadow: 0 3px 12px 10px rgba(0, 0, 0, 0.1);
+  display: none;
+}
+
+#logs-search-results.visible {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 800px;
+    max-width: 90vw;
+    background-color: var(--colors-ContrastNeutral);
+    box-shadow: 0 3px 12px 10px rgba(0, 0, 0, 0.1);
 }
 
 #logs-search-results li {
