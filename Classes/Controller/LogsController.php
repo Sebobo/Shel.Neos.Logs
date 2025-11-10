@@ -16,6 +16,7 @@ use Neos\Flow\Security\Context as SecurityContext;
 use Neos\Fusion\View\FusionView;
 use Neos\Neos\Controller\Module\AbstractModuleController;
 use Neos\Utility\Files;
+use Sentry\Logs\Log;
 use Shel\Neos\Logs\Service\LogsService;
 
 #[Flow\Scope('singleton')]
@@ -151,6 +152,7 @@ class LogsController extends AbstractModuleController
     public function showExceptionAction(): void
     {
         ['identifier' => $identifier] = $this->request->getArguments();
+        $identifier = LogsService::sanitiseExceptionIdentifier($identifier);
 
         $filepath = $this->logsService->getValidExceptionFilepath($identifier);
         $error = false;
@@ -178,17 +180,14 @@ class LogsController extends AbstractModuleController
     public function deleteExceptionAction(): void
     {
         ['identifier' => $identifier] = $this->request->getArguments();
+        $identifier = LogsService::sanitiseExceptionIdentifier($identifier);
 
-        $filepath = $this->logsService->getValidExceptionFilepath($identifier);
-        if (!$filepath) {
-            $this->addFlashMessage(sprintf('Exception %s not found', $identifier), Message::SEVERITY_ERROR);
-        } elseif (!Files::unlink($filepath)) {
-            $this->addFlashMessage(
-                sprintf('Exception %s could not be deleted', $identifier),
-                Message::SEVERITY_ERROR
-            );
+        try {
+            $this->logsService->deleteExceptionWithDuplicates($identifier);
+            $this->addFlashMessage(sprintf('Exception %s deleted', $identifier));
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), Message::SEVERITY_ERROR);
         }
-        $this->addFlashMessage(sprintf('Exception %s deleted', $identifier));
         $this->redirect('index');
     }
 
@@ -198,6 +197,7 @@ class LogsController extends AbstractModuleController
     public function downloadExceptionAction(): void
     {
         ['identifier' => $identifier] = $this->request->getArguments();
+        $identifier = LogsService::sanitiseExceptionIdentifier($identifier);
 
         $filepath = $this->logsService->getValidExceptionFilepath($identifier);
         if ($filepath) {

@@ -65,8 +65,10 @@ class LogsService
         if (is_dir($this->exceptionFilesUrl)) {
             try {
                 // Check for new exceptions
-                $exceptionFiles = Files::readDirectoryRecursively($this->exceptionFilesUrl,
-                    self::EXCEPTION_FILE_EXTENSION);
+                $exceptionFiles = Files::readDirectoryRecursively(
+                    $this->exceptionFilesUrl,
+                    self::EXCEPTION_FILE_EXTENSION
+                );
                 // TODO: Group by excerpt hash or exception code
                 foreach ($exceptionFiles as $exceptionPathAndFilename) {
                     $identifier = basename($exceptionPathAndFilename, self::EXCEPTION_FILE_EXTENSION);
@@ -101,11 +103,14 @@ class LogsService
             }
             // Merge the whole group into one exception
             $firstInstance = array_shift($exceptionGroup);
-            $deduplicatedException = array_reduce($exceptionGroup,
+            $deduplicatedException = array_reduce(
+                $exceptionGroup,
                 static function (ParsedException $firstInstance, ParsedException $exception) {
                     $firstInstance->addDuplicate($exception);
                     return $firstInstance;
-                }, $firstInstance);
+                },
+                $firstInstance
+            );
             $deduplicatedExceptions[] = $deduplicatedException;
         }
 
@@ -122,6 +127,11 @@ class LogsService
             return Files::getFileContents($filepath);
         }
         return null;
+    }
+
+    public static function sanitiseExceptionIdentifier(string $identifier): string
+    {
+        return preg_replace('/[^a-z0-9]/', '', $identifier) ?? '';
     }
 
     public function getValidExceptionFilepath(string $identifier): ?string
@@ -224,5 +234,27 @@ class LogsService
             throw new \RuntimeException('Exception not found', 1740487763);
         }
         return self::parseException($identifier, $filepath);
+    }
+
+    public function deleteExceptionWithDuplicates($identifier): void
+    {
+        $exceptions = $this->getExceptions();
+        foreach ($exceptions as $exception) {
+            if ($exception->identifier === $identifier
+                || array_key_exists($identifier, $exception->getDuplicates())) {
+                $identifiersToDelete = [$exception->identifier, ...array_keys($exception->getDuplicates())];
+                foreach ($identifiersToDelete as $identifierToDelete) {
+                    $filepath = $this->getValidExceptionFilepath($identifierToDelete);
+                    if ($filepath && !Files::unlink($filepath)) {
+                        throw new \RuntimeException(
+                            sprintf('Exception %s could not be deleted', $identifierToDelete),
+                            1762766217
+                        );
+                    }
+                }
+                $this->loggerCache->flushByTag('exception');
+                break;
+            }
+        }
     }
 }
