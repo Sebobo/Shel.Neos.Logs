@@ -41,10 +41,13 @@ class LogsService
     {
         // Retrieve all log files (there shouldn't be more than 10 in 99% of projects)
         try {
-            return array_map(static function (string $logFile) {
+            return array_map(function (string $logFile) {
+                $filePathInfo = pathinfo($logFile);
                 return [
-                    'identifier' => basename($logFile),
-                    'path' => $logFile,
+                    'filename' => basename($logFile),
+                    'label' => $filePathInfo['filename'],
+                    'extension' => $filePathInfo['extension'],
+                    'relativePath' => substr($logFile, strlen($this->logFilesUrl)),
                 ];
             }, Files::readDirectoryRecursively($this->logFilesUrl, '.log'));
         } catch (\Exception $e) {
@@ -119,8 +122,9 @@ class LogsService
         return $deduplicatedExceptions;
     }
 
-    public function getLogFileContents(string $filepath): ?string
+    public function getLogFileContents(string $relativeFilepath): ?string
     {
+        $filepath = self::getFilepath($this->logFilesUrl, trim($relativeFilepath, '/'));
         if (self::isFilenameValid($this->logFilesUrl, $filepath)) {
             return Files::getFileContents($filepath);
         }
@@ -141,9 +145,10 @@ class LogsService
         return null;
     }
 
-    public function getValidLogFilepath(string $filepath): ?string
+    public function getValidLogFilepath(string $relativeFilepath): ?string
     {
-        if (self::isFilenameValid($this->logFilesUrl, $filepath)) {
+        $filepath = self::getFilepath($this->logFilesUrl, trim($relativeFilepath, '/'));
+        if ($relativeFilepath && self::isFilenameValid($this->logFilesUrl, $filepath)) {
             return $filepath;
         }
         return null;

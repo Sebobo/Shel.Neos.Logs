@@ -83,7 +83,7 @@ class LogsController extends AbstractModuleController
 
     public function showLogfileAction(): void
     {
-        ['filename' => $filename, 'filepath' => $filepath] = $this->request->getArguments();
+        ['relativeFilepath' => $relativeFilepath] = $this->request->getArguments();
 
         $entries = [];
         $levels = [];
@@ -91,7 +91,7 @@ class LogsController extends AbstractModuleController
         $level = $this->request->hasArgument('level') ? $this->request->getArgument('level') : '';
         $limit = $this->request->hasArgument('limit') ? $this->request->getArgument('limit') : 50;
 
-        $fileContent = $this->logsService->getLogFileContents($filepath);
+        $fileContent = $this->logsService->getLogFileContents($relativeFilepath);
         if ($fileContent) {
             $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)(\s+[:.\d]+)?\s+(\w+)\s+(.+)/', $fileContent, $lines);
 
@@ -119,8 +119,9 @@ class LogsController extends AbstractModuleController
             $this->addFlashMessage('Logfile could not be read', Message::SEVERITY_ERROR);
         }
 
+        $filepath = $this->logsService->getValidLogFilepath($relativeFilepath);
         $this->view->assignMultiple([
-            'filename' => $filename,
+            'filename' => basename($filepath),
             'entries' => $entries,
             'flashMessages' => $this->controllerContext->getFlashMessageContainer()->getMessagesAndFlush(),
             'levels' => array_keys($levels),
@@ -135,9 +136,10 @@ class LogsController extends AbstractModuleController
      */
     public function downloadLogfileAction(): void
     {
-        ['filename' => $filename, 'filepath' => $filepath] = $this->request->getArguments();
+        ['relativeFilepath' => $filepath] = $this->request->getArguments();
 
         $validFilepath = $this->logsService->getValidLogFilepath($filepath);
+        $filename = basename($validFilepath, '.log');
         if ($validFilepath) {
             $this->startFileDownload($validFilepath, $filename);
         } else {
