@@ -17,9 +17,9 @@ prototype(Shel.Neos.Logs:Component.LogList) < prototype(Neos.Fusion:Component) {
                                 <Neos.Fusion:UriBuilder
                                     @path="attributes.href"
                                     action="showLogfile"
-                                    arguments={{'filename': file.identifier}}
+                                    arguments={{'relativeFilepath': file.relativePath}}
                                 />
-                                {file.name}
+                                {file.label}
                             </a>
                         </td>
                         <td class="column__actions">
@@ -27,7 +27,7 @@ prototype(Shel.Neos.Logs:Component.LogList) < prototype(Neos.Fusion:Component) {
                                 <Neos.Fusion:UriBuilder
                                     @path="attributes.href"
                                     action="downloadLogfile"
-                                    arguments={{'filename': file.identifier}}
+                                    arguments={{'relativeFilepath': file.relativePath}}
                                 />
                                 <i class="fas fa-download"></i>
                             </a>
