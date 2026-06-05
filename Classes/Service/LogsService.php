@@ -39,15 +39,17 @@ class LogsService
      */
     public function getLogFiles(): array
     {
+        $logFilesPath = $this->logFilesUrl;
+
         // Retrieve all log files (there shouldn't be more than 10 in 99% of projects)
         try {
-            return array_map(function (string $logFile) {
+            return array_map(static function (string $logFile) use ($logFilesPath) {
                 $filePathInfo = pathinfo($logFile);
                 return [
                     'filename' => basename($logFile),
                     'label' => $filePathInfo['filename'],
                     'extension' => $filePathInfo['extension'],
-                    'relativePath' => substr($logFile, strlen($this->logFilesUrl)),
+                    'relativePath' => Files::getRelativePath($logFilesPath, $logFile),
                 ];
             }, Files::readDirectoryRecursively($this->logFilesUrl, '.log'));
         } catch (\Exception $e) {
