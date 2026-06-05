@@ -83,7 +83,7 @@ class LogsController extends AbstractModuleController
 
     public function showLogfileAction(): void
     {
-        ['filename' => $filename] = $this->request->getArguments();
+        ['filename' => $filename, 'filepath' => $filepath] = $this->request->getArguments();
 
         $entries = [];
         $levels = [];
@@ -91,7 +91,7 @@ class LogsController extends AbstractModuleController
         $level = $this->request->hasArgument('level') ? $this->request->getArgument('level') : '';
         $limit = $this->request->hasArgument('limit') ? $this->request->getArgument('limit') : 50;
 
-        $fileContent = $this->logsService->getLogFileContents($filename);
+        $fileContent = $this->logsService->getLogFileContents($filepath);
         if ($fileContent) {
             $lineCount = preg_match_all('/([\d:\-\s]+)\s([\d]+)(\s+[:.\d]+)?\s+(\w+)\s+(.+)/', $fileContent, $lines);
 
@@ -135,11 +135,11 @@ class LogsController extends AbstractModuleController
      */
     public function downloadLogfileAction(): void
     {
-        ['filename' => $filename] = $this->request->getArguments();
+        ['filename' => $filename, 'filepath' => $filepath] = $this->request->getArguments();
 
-        $filepath = $this->logsService->getValidLogFilepath($filename);
-        if ($filepath) {
-            $this->startFileDownload($filepath, $filename);
+        $validFilepath = $this->logsService->getValidLogFilepath($filepath);
+        if ($validFilepath) {
+            $this->startFileDownload($validFilepath, $filename);
         } else {
             $this->addFlashMessage(sprintf('Logfile %s not found', $filename), Message::SEVERITY_ERROR);
         }

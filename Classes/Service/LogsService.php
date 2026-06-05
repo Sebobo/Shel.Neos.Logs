@@ -35,17 +35,16 @@ class LogsService
 
     /**
      * TODO: Introduce DTO for log files
-     * @return array{name: string, identifier: string}[]
+     * @return array{identifier: string, path: string}[]
      */
     public function getLogFiles(): array
     {
         // Retrieve all log files (there shouldn't be more than 10 in 99% of projects)
         try {
             return array_map(static function (string $logFile) {
-                $filename = basename($logFile);
                 return [
-                    'name' => basename($logFile),
-                    'identifier' => $filename,
+                    'identifier' => basename($logFile),
+                    'path' => $logFile,
                 ];
             }, Files::readDirectoryRecursively($this->logFilesUrl, '.log'));
         } catch (\Exception $e) {
@@ -120,10 +119,9 @@ class LogsService
         return $deduplicatedExceptions;
     }
 
-    public function getLogFileContents($filename): ?string
+    public function getLogFileContents(string $filepath): ?string
     {
-        $filepath = self::getFilepath($this->logFilesUrl, $filename);
-        if ($filename && self::isFilenameValid($this->logFilesUrl, $filepath)) {
+        if (self::isFilenameValid($this->logFilesUrl, $filepath)) {
             return Files::getFileContents($filepath);
         }
         return null;
@@ -143,10 +141,9 @@ class LogsService
         return null;
     }
 
-    public function getValidLogFilepath(string $filename): ?string
+    public function getValidLogFilepath(string $filepath): ?string
     {
-        $filepath = self::getFilepath($this->logFilesUrl, $filename);
-        if ($filename && self::isFilenameValid($this->logFilesUrl, $filepath)) {
+        if (self::isFilenameValid($this->logFilesUrl, $filepath)) {
             return $filepath;
         }
         return null;
@@ -159,7 +156,7 @@ class LogsService
     {
         $content = htmlspecialchars($fileContent, ENT_QUOTES | ENT_HTML5);
         preg_match('/^(?s)(.*?)(?:\R{2,}|$)(.*)/', $content, $matches);
-        $excerpt = str_replace(FLOW_PATH_ROOT, '…/', $matches[1] ?? '');;
+        $excerpt = str_replace(FLOW_PATH_ROOT, '…/', $matches[1] ?? '');
         $stacktrace = str_replace(FLOW_PATH_ROOT, '…/', $matches[2] ?? '');
 
         return [
