@@ -44,7 +44,7 @@ class LogsCommandController extends CommandController
         );
     }
 
-    public function showExceptionCommand(string $identifier = null): void
+    public function showExceptionCommand(?string $identifier = null): void
     {
         // If no identifier is provided, try to get it from the arguments
         if (!$identifier) {
